@@ -1,47 +1,30 @@
 package com.banson.heathtagram.controller;
 
-import com.banson.heathtagram.dto.LoginDto;
-import com.banson.heathtagram.dto.SignupDto;
 import com.banson.heathtagram.service.MemberService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@RestController
+import javax.lang.model.SourceVersion;
+import javax.swing.filechooser.FileSystemView;
+import java.security.Principal;
+
+@Controller
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Slf4j
 public class MemberController {
 
     private final MemberService memberService;
 
-    @PostMapping("/signup")
-    public ResponseEntity signup(@Valid @RequestBody SignupDto signupDto) {
-        if (!signupDto.getPassword().equals(signupDto.getCheckPassword())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(signupDto.getEmail());
-        }
+    @DeleteMapping("/cancelAccount")
+    public String deleteUser(Principal principal) {
+        memberService.cancelAccount(principal);
+        log.info("principal = {}", principal.getName());
 
-        memberService.signup(signupDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @PostMapping("/signin")
-    public ResponseEntity signin(@RequestBody LoginDto loginDto) {
-        String token = memberService.signin(loginDto);
-        return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, "Bearer" + token).build();
-    }
-
-    @GetMapping("/success")
-    public ResponseEntity seccess() {
-        return ResponseEntity.ok("success");
-    }
-
-    @GetMapping("/myPage")
-    public ResponseEntity myPage(HttpServletRequest request) {
-        return ResponseEntity.ok(memberService.myPage(request));
+        return "redirect:/api/home";
     }
 }

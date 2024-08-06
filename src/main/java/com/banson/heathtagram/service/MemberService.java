@@ -1,7 +1,7 @@
 package com.banson.heathtagram.service;
 
 import com.banson.heathtagram.dto.LoginDto;
-import com.banson.heathtagram.dto.MyPageDto;
+import com.banson.heathtagram.dto.MemberDto;
 import com.banson.heathtagram.dto.SignupDto;
 import com.banson.heathtagram.entity.Member;
 import com.banson.heathtagram.jwt.JwtTokenFilter;
@@ -9,20 +9,21 @@ import com.banson.heathtagram.jwt.JwtTokenProvider;
 import com.banson.heathtagram.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.security.Principal;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final JwtTokenFilter jwtTokenFilter;
 
     @Transactional
     public void signup(SignupDto signupDto) {
@@ -35,8 +36,9 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    @Transactional
     public String signin(LoginDto loginDto) {
-        Member member = memberRepository.findByEmail(loginDto.getEmail()).orElseThrow(() -> new IllegalArgumentException("가입되지 않은 사용자"));
+        Member member = memberRepository.findByEmail(loginDto.getEmail());
         if (!passwordEncoder.matches(loginDto.getPassword(), member.getPassword())) {
             throw new IllegalArgumentException("잘못된 비밀번호");
         }
@@ -48,18 +50,21 @@ public class MemberService {
         return jwtTokenProvider.createAccessToken(email);
     }
 
-    public MyPageDto myPage(HttpServletRequest request) {
-        String accessToken = jwtTokenFilter.resolveToken(request);
-        String email = jwtTokenProvider.getAccessTokenInfo(accessToken);
-        Member member = memberRepository.findByEmail(email).orElseThrow();
+    public MemberDto myPage(Principal principal) {
+        String email = principal.getName();
+        Member member = memberRepository.findByEmail(email);
 
-        return MyPageDto.builder()
-                .email(member.getEmail())
-                .name(member.getName())
-                .nickname(member.getNickname())
-                .followedMemberId(member.getFollowedMemberId())
-                .followingMemberId(member.getFollowingMemberId())
-                .profilePicture(member.getProfilePicture())
-                .build();
+        return MemberDto.toEntity(member);
+    }
+
+    public MemberDto memberPage(String nickname) {
+        Member member = memberRepository.findByNickname(nickname);
+
+        return MemberDto.toEntity(member);
+    }
+
+    @Transactional
+    public void cancelAccount(Principal principal) {
+        memberRepository.deleteByEmail(principal.getName());
     }
 }

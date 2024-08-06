@@ -1,23 +1,17 @@
 package com.banson.heathtagram.error;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.coyote.BadRequestException;
-import org.springframework.http.HttpStatus;
+import org.apache.logging.log4j.util.InternalException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.client.HttpClientErrorException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    ObjectMapper objectMapper = new ObjectMapper();
 
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity notAuthorize() {
@@ -34,6 +28,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({IllegalArgumentException.class, HttpMessageNotReadableException.class,MethodArgumentNotValidException.class})
     public ResponseEntity illegalArgumentError() throws JsonProcessingException {
         ErrorCode errorCode = ErrorCode.IllegalArgumentError;
+        return ResponseEntity.status(errorCode.getCode()).body(errorCode.getMessage());
+    }
+
+    @ExceptionHandler(InternalException.class)
+    public ResponseEntity internalException() {
+        ErrorCode errorCode = ErrorCode.InternalError;
+        return ResponseEntity.status(errorCode.getCode()).body(errorCode.getMessage());
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity nullPointerException() {
+        ErrorCode errorCode = ErrorCode.NullPointError;
         return ResponseEntity.status(errorCode.getCode()).body(errorCode.getMessage());
     }
 

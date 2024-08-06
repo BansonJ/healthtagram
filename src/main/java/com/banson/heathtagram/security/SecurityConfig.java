@@ -6,9 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -44,6 +41,11 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/api/signin"),
                                 new AntPathRequestMatcher("/api/signup"),
                                 new AntPathRequestMatcher("/api/home"),
+                                new AntPathRequestMatcher("/api/memberPage"),
+                                new AntPathRequestMatcher("/api/tagSearching"),
+                                new AntPathRequestMatcher("/api/nicknameSearching"),
+                                new AntPathRequestMatcher("/api/post/**"),
+
                                 PathRequest.toH2Console())
                         .permitAll()
                         .anyRequest().authenticated()
