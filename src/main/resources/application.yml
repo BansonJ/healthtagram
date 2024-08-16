@@ -15,6 +15,7 @@ spring:
     username: sa
     password: 1234
   jpa:
+    show-sql: true
     generate-ddl: 'true'
     hibernate:
       ddl-auto: create
@@ -25,3 +26,6 @@ spring:
 
 jwt:
   secret: 561ft65h1tr561t5456y15e6r1f5645y154r5gera1fjk1yl8uy89re12ds231f34
+
+file:
+  path: C:\study/healthtagramImage/
