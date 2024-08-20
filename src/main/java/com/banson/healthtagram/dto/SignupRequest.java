@@ -27,4 +27,6 @@ public class SignupRequest {
     @NotEmpty
     private String name;
 
+    private String profilePicture;
+
 }

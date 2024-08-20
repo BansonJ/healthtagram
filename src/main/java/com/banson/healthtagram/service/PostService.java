@@ -2,6 +2,7 @@ package com.banson.healthtagram.service;
 
 import com.banson.healthtagram.dto.*;
 import com.banson.healthtagram.entity.*;
+import com.banson.healthtagram.repository.PostHeartRepository;
 import com.banson.healthtagram.repository.PostImageRepository;
 import com.banson.healthtagram.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
     private final MemberService memberService;
+    private final PostHeartRepository postHeartRepository;
 
     @Transactional
     public void savePost(PostRequestDto postRequestDto, List<MultipartFile> multipartFile, String nickname) {
@@ -79,13 +81,21 @@ public class PostService {
             id.add(follow.getFollowing());
         }
 
-        log.info("시작");
         List<Post> postList = postRepository.findByIdLessThanAndMemberIn(lastPostId, id, pageable);
-        log.info("끝:{}", postList);
+        log.info("여기가 첫번째:{}",postList);
+        List<PostHeart> postHeartList = postHeartRepository.findByMemberAndPostIn(member, postList);
 
         List<PostResponseDto> postResponseDtoList = new ArrayList<>();
 
         for (Post post : postList) {
+
+            boolean state = false;
+            for (int i = 0; i < postHeartList.size(); i++) {
+                if (postHeartList.get(i).getPost().equals(post)) {
+                    state = true;
+                }
+            }
+
             PostResponseDto postResponseDto = PostResponseDto.builder()
                     .content(post.getContent())
                     .createdAt(post.getCreatedAt())
@@ -93,15 +103,21 @@ public class PostService {
                     .heartCount(post.getHeartCount())
                     .tagList(Arrays.stream(post.getTag().split("#")).toList())
                     .nickname(post.getNickname())
+                    .likeState(state)
                     .build();
             postResponseDtoList.add(postResponseDto);
         }
+        log.info("여기가 두번쨰:{}", postResponseDtoList);
 
         return postResponseDtoList;
     }
 
     public Post findById(Long postId) {
         return postRepository.findById(postId).orElseThrow();
+    }
+
+    public List<Post> findByNickname(String nickname, Pageable pageable) {
+        return postRepository.findByNickname(nickname, pageable);
     }
 
     public void likePost(Long postId) {

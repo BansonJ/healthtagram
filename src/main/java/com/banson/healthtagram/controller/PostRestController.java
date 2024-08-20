@@ -1,6 +1,5 @@
 package com.banson.healthtagram.controller;
 
-import com.banson.healthtagram.dto.PostPageDto;
 import com.banson.healthtagram.dto.PostRequestDto;
 import com.banson.healthtagram.dto.PostResponseDto;
 import com.banson.healthtagram.entity.Follow;
@@ -38,7 +37,7 @@ public class PostRestController {
         return ResponseEntity.status(201).build();
     }
 
-    @GetMapping("/home")    //잘되는지 확인
+    @GetMapping("/home")    //잘되는지 확인   ;팔로워들의 포스트를 보여줘야해;
     public ResponseEntity home(@RequestParam(name = "lastPostId") Long lastPostId, Principal principal, @PageableDefault(size = 3) Pageable pageable) {
         Member member = memberService.findByEmail(principal.getName());
         List<PostResponseDto> postList = postService.findPostInMember(lastPostId, member, pageable);

@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class SearchResponse {
     String nickname;
     String profilePicture;
+    boolean state;
 }

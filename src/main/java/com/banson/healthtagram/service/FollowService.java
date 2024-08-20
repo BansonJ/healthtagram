@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ public class FollowService {
     public void following(Member following, Member follower) {
         if (following == follower) {
             throw new IllegalArgumentException();
-        } else if (followRepository.findByFollowingAndFollower(following, follower).isPresent()) {
+        } else if (followRepository.findByFollowerAndFollowing(follower, following).isPresent()) {
             throw new IllegalArgumentException();
         }
 
@@ -55,12 +56,18 @@ public class FollowService {
                     .profilePicture(follow.getFollower().getProfilePicture())
                     .build());
         }
-
         return followerList;
     }
 
     @Transactional
     public void unfollowing(Member following, Member follower) {
         followRepository.deleteByFollowingAndFollower(following, follower);
+    }
+
+    public boolean followState(Member me, Member friend) {
+        if (followRepository.findByFollowerAndFollowing(me, friend).isPresent()) {
+            return true;
+        }
+        return false;
     }
 }
