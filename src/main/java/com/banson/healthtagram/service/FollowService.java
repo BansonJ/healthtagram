@@ -1,6 +1,6 @@
 package com.banson.healthtagram.service;
 
-import com.banson.healthtagram.dto.SearchResponse;
+import com.banson.healthtagram.dto.SearchResponseDto;
 import com.banson.healthtagram.entity.Follow;
 import com.banson.healthtagram.entity.Member;
 import com.banson.healthtagram.repository.FollowRepository;
@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,11 +33,11 @@ public class FollowService {
         followRepository.save(follow);
     }
 
-    public List<SearchResponse> followingList(Member member) {
-        List<SearchResponse> followingList = new ArrayList<>();
+    public List<SearchResponseDto> followingList(Member member) {
+        List<SearchResponseDto> followingList = new ArrayList<>();
 
         for (Follow follow : member.getFollowingList()) {
-            followingList.add(SearchResponse.builder()
+            followingList.add(SearchResponseDto.builder()
                     .nickname(follow.getFollowing().getNickname())
                     .profilePicture(follow.getFollowing().getProfilePicture())
                     .build());
@@ -47,11 +46,11 @@ public class FollowService {
         return followingList;
     }
 
-    public List<SearchResponse> followerList(Member member) {
-        List<SearchResponse> followerList = new ArrayList<>();
+    public List<SearchResponseDto> followerList(Member member) {
+        List<SearchResponseDto> followerList = new ArrayList<>();
 
         for (Follow follow : member.getFollowerList()) {
-            followerList.add(SearchResponse.builder()
+            followerList.add(SearchResponseDto.builder()
                     .nickname(follow.getFollower().getNickname())
                     .profilePicture(follow.getFollower().getProfilePicture())
                     .build());
@@ -64,10 +63,10 @@ public class FollowService {
         followRepository.deleteByFollowingAndFollower(following, follower);
     }
 
-    public boolean followState(Member me, Member friend) {
+    public String followState(Member me, Member friend) {
         if (followRepository.findByFollowerAndFollowing(me, friend).isPresent()) {
-            return true;
+            return "following";
         }
-        return false;
+        return "unfollowing";
     }
 }

@@ -19,5 +19,5 @@ public class MemberResponseDto {
     private String profilePicture;
     @Nullable
     private List<String> filePath;
-    private boolean followState;
+    private String followState;
 }

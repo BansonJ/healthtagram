@@ -1,6 +1,8 @@
 package com.banson.healthtagram.dto;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,22 +13,24 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SignupRequest {
+public class SignupRequestDto {
     @Email
+    @NotBlank
     private String email;
 
-    @NotEmpty
+    @NotBlank
     private String password;
 
-    @NotEmpty
+    @NotBlank
     private String checkPassword;
 
-    @NotEmpty
+    @NotBlank
     private String nickname;
 
     @NotEmpty
     private String name;
 
+    @Nullable
     private String profilePicture;
 
 }

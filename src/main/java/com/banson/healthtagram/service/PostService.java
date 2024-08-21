@@ -74,13 +74,7 @@ public class PostService {
         }
     }
 
-    public List<PostResponseDto> findPostInMember(Long lastPostId, Member member, Pageable pageable) {
-        List<Member> id = new ArrayList<>();
-        id.add(member);
-        for (Follow follow : member.getFollowingList()) {
-            id.add(follow.getFollowing());
-        }
-
+    public List<PostResponseDto> findPostInMember(Long lastPostId, Member member, List<Member> id,Pageable pageable) {
         List<Post> postList = postRepository.findByIdLessThanAndMemberIn(lastPostId, id, pageable);
         log.info("여기가 첫번째:{}",postList);
         List<PostHeart> postHeartList = postHeartRepository.findByMemberAndPostIn(member, postList);
@@ -120,8 +114,64 @@ public class PostService {
         return postRepository.findByNickname(nickname, pageable);
     }
 
-    public void likePost(Long postId) {
+    @Transactional
+    public void likePost(Long postId, Member member) {
+        PostHeart exist = postHeartRepository.findByMemberAndPost(member, postRepository.findById(postId).orElseThrow());
+        if (exist != null) {
+            return;
+        }
+
         Post post = this.findById(postId);
         post.plusHeartCount();
+
+        PostHeart postHeart = PostHeart.builder()
+                .post(postRepository.findById(postId).orElseThrow())
+                .member(member)
+                .build();
+        postHeartRepository.save(postHeart);
+    }
+
+    @Transactional
+    public void cancelLikePost(Long postId, Member member) {
+        PostHeart exist = postHeartRepository.findByMemberAndPost(member, postRepository.findById(postId).orElseThrow());
+        if (exist == null) {
+            return;
+        }
+
+        Post post = this.findById(postId);
+        post.minusHeartCount();
+
+        postHeartRepository.deleteByPostAndMember(post, member);
+    }
+
+    public List<PostResponseDto> tagSearching(String tagSearching, Long latPostId, Member member, Pageable pageable) {
+        List<Post> postList = postRepository.findByIdLessThanAndTagContaining(latPostId, tagSearching, pageable);
+        List<PostHeart> postHeartList = postHeartRepository.findByMemberAndPostIn(member, postList);
+
+        List<PostResponseDto> postResponseDtoList = new ArrayList<>();
+
+        for (Post post : postList) {
+
+            boolean state = false;
+            for (int i = 0; i < postHeartList.size(); i++) {
+                if (postHeartList.get(i).getPost().equals(post)) {
+                    state = true;
+                }
+            }
+
+            PostResponseDto postResponseDto = PostResponseDto.builder()
+                    .content(post.getContent())
+                    .createdAt(post.getCreatedAt())
+                    .filePath(post.getFilePath())
+                    .heartCount(post.getHeartCount())
+                    .tagList(Arrays.stream(post.getTag().split("#")).toList())
+                    .nickname(post.getNickname())
+                    .likeState(state)
+                    .build();
+            postResponseDtoList.add(postResponseDto);
+        }
+        log.info("여기가 두번쨰:{}", postResponseDtoList);
+
+        return postResponseDtoList;
     }
 }

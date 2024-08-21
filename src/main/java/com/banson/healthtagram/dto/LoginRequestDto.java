@@ -1,16 +1,18 @@
 package com.banson.healthtagram.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-public class SearchResponse {
-    String nickname;
-    String profilePicture;
-    boolean state;
+public class LoginRequestDto {
+    @NotBlank
+    String email;
+    @NotBlank
+    String password;
 }

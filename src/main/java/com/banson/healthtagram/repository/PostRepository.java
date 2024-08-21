@@ -16,4 +16,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByIdLessThanAndMemberIn(Long lastPostId, List<Member> id, Pageable pageable);
 
     List<Post> findByNickname(String nickname, Pageable pageable);
+
+    List<Post> findByIdLessThanAndTagContaining(Long id ,String tagSearching, Pageable pageable);
 }

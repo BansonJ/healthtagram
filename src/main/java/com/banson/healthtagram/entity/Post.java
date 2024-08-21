@@ -1,6 +1,8 @@
 package com.banson.healthtagram.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,10 +22,10 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @NotNull
+    @NotEmpty
     private String content;
 
-    @NotNull
+    @NotBlank
     private String nickname;
 
     private Long heartCount;
@@ -34,17 +36,15 @@ public class Post {
     @CreatedDate
     private LocalDateTime createdAt;
 
+    @Column(name = "tag")
     private String tag;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member")
     private Member member;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.EAGER)
     private List<PostHeart> postHeartList;
-
-    @Setter
-    private boolean likeState;
 
     public void updateMember(Member member) {
         this.member = member;
@@ -53,6 +53,10 @@ public class Post {
 
     public void plusHeartCount() {
         this.heartCount++;
+    }
+
+    public void minusHeartCount() {
+        this.heartCount--;
     }
 
 }

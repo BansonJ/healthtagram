@@ -1,6 +1,7 @@
 package com.banson.healthtagram.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Entity

@@ -1,7 +1,6 @@
 package com.banson.healthtagram.controller;
 
 import com.banson.healthtagram.dto.*;
-import com.banson.healthtagram.entity.Follow;
 import com.banson.healthtagram.entity.Member;
 import com.banson.healthtagram.entity.Post;
 import com.banson.healthtagram.service.FollowService;
@@ -20,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,12 +29,12 @@ public class MemberRestController {
     private final PostService postService;
     private final FollowService followService;
 
-    private Member findUser() {
+    private Member findUser() { //내 Member 정보
         return memberService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     @PostMapping("/signup") //회원가입
-    public ResponseEntity signup(@Valid @RequestPart(name = "signupDto") SignupRequest signupDto, @RequestPart(name = "multipartFile") MultipartFile multipartFile) {
+    public ResponseEntity signup(@Valid @RequestPart(name = "signupDto") SignupRequestDto signupDto, @RequestPart(name = "multipartFile") MultipartFile multipartFile) {
         Member member = memberService.signup(signupDto, multipartFile);
 
         if (member == null) {
@@ -47,58 +45,41 @@ public class MemberRestController {
     }
 
     @PostMapping("/signin") //로그인
-    public ResponseEntity signin(@RequestBody LoginRequest loginDto) {
+    public ResponseEntity signin(@Valid @RequestBody LoginRequestDto loginDto) {
         String token = memberService.signin(loginDto);
         return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, "Bearer" + token).build();
     }
 
-    @GetMapping("/success") //성공 여부 확인용 컨트롤러
-    public ResponseEntity success() {
-        return ResponseEntity.ok("success");
-    }
-
-    @GetMapping("/myPage")  //내 정보 보기
-    public ResponseEntity myPage(@PageableDefault(size = 3) Pageable pageable) {
-        Member member = findUser();
-        List<Post> post = postService.findByNickname(findUser().getNickname(), pageable);
+    @GetMapping("/memberPage/{nickname}")  //유저 정보 보기
+    public ResponseEntity memberPage(@PathVariable(name = "nickname") String nickname, @PageableDefault(size = 3) Pageable pageable) {
+        Member me = findUser();
+        Member member = memberService.findByNickname(nickname);
+        List<Post> post = postService.findByNickname(member.getNickname(), pageable);
 
         ArrayList<String> filePath = new ArrayList<>();
         for (Post post1 : post) {
             filePath.add(post1.getFilePath().get(0));
+        }
+
+        String followState;
+
+        if (me.equals(member)) {
+            followState = "me";
+        } else {
+            followState = followService.followState(me, member);
         }
 
         MemberResponseDto memberResponseDto = MemberResponseDto.builder()
                 .nickname(member.getNickname())
                 .profilePicture(member.getProfilePicture())
                 .filePath(filePath)
-                .build();
-
-        return ResponseEntity.ok(memberResponseDto);
-    }
-
-    @GetMapping("/memberPage/{nickname}")  //유저 정보 보기   ;빈 포스트일 시 괜찮은지;
-    public ResponseEntity memberPage(@PathVariable(name = "nickname") String nickname, @PageableDefault(size = 3) Pageable pageable) {
-        Member me = findUser();
-        Member friend = memberService.findByNickname(nickname);
-        List<Post> post = postService.findByNickname(friend.getNickname(), pageable);
-
-        ArrayList<String> filePath = new ArrayList<>();
-        for (Post post1 : post) {
-            filePath.add(post1.getFilePath().get(0));
-        }
-
-        boolean followState = followService.followState(me, friend);
-        MemberResponseDto memberResponseDto = MemberResponseDto.builder()
-                .nickname(friend.getNickname())
-                .profilePicture(friend.getProfilePicture())
-                .filePath(filePath)
                 .followState(followState).build();
         return ResponseEntity.ok(memberResponseDto);
     }
 
-    @GetMapping("/nicknameSearching")   //유저 닉네임 검색  ;검색 시 팔로우 관련 정보 필요;
-    public ResponseEntity nicknameSearch(@RequestParam(name = "search") String search, @PageableDefault Pageable pageable) {
-        SearchPageDto searchPageDto = memberService.search(search, pageable, findUser());
+    @GetMapping("/nicknameSearching")   //유저 닉네임 검색  ;검색 시 팔로우 관련 정보 필요;    ;점검필요;
+    public ResponseEntity nicknameSearch(@RequestParam(name = "search") String search, @PageableDefault(size = 5) Pageable pageable) {
+        SearchPageResponseDto searchPageDto = memberService.search(search, pageable, findUser());
 
         return ResponseEntity.ok(searchPageDto);
     }

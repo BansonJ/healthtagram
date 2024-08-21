@@ -2,6 +2,7 @@ package com.banson.healthtagram.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -27,7 +28,7 @@ public class Member {
     private String email;
 
     @Column(name = "password", nullable = false)
-    @NotEmpty
+    @NotBlank
     private String password;
 
     @Column(name = "name", nullable = false)
@@ -35,14 +36,14 @@ public class Member {
     private String name;
 
     @Column(name = "nickname", unique = true, nullable = false)
-    @NotEmpty
+    @NotBlank
     private String nickname;
 
-    @Column(name = "profile_picture")
+    @Column(name = "profilePicture")
     private String profilePicture;
 
     @CreatedDate
-    @Column(name = "created_at")
+    @Column(name = "createdAt")
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "follower")

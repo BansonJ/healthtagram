@@ -2,14 +2,15 @@ package com.banson.healthtagram.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequest {
-    String email;
-    String password;
+@Getter
+public class SearchResponseDto {
+    String nickname;
+    String profilePicture;
+    boolean state;
 }

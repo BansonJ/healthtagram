@@ -46,7 +46,7 @@ public class MemberService {
     }
 
     @Transactional
-    public Member signup(SignupRequest signupDto, MultipartFile multipartFile) {
+    public Member signup(SignupRequestDto signupDto, MultipartFile multipartFile) {
         if (!signupDto.getPassword().equals(signupDto.getCheckPassword())) {
             return null;
         }
@@ -74,7 +74,7 @@ public class MemberService {
     }
 
     @Transactional
-    public String signin(LoginRequest loginDto) {
+    public String signin(LoginRequestDto loginDto) {
         Member member = memberRepository.findByEmail(loginDto.getEmail());
         if (!passwordEncoder.matches(loginDto.getPassword(), member.getPassword())) {
             throw new IllegalArgumentException("잘못된 비밀번호");
@@ -92,11 +92,13 @@ public class MemberService {
         memberRepository.deleteByEmail(principal.getName());
     }
 
-    public SearchPageDto search(String search, Pageable pageable, Member me) {
+    public SearchPageResponseDto search(String search, Pageable pageable, Member me) {
         Page<Member> member = memberRepository.findByNicknameContaining(search, pageable);
-        Optional<List<Follow>> followList = followRepository.findByFollowerAndFollowingIn(me ,member);
+        List<Member> memberList = member.getContent();
 
-        List<SearchResponse> searchDtoList = new ArrayList<>();
+        Optional<List<Follow>> followList = followRepository.findByFollowerAndFollowingIn(me ,memberList);
+
+        List<SearchResponseDto> searchDtoList = new ArrayList<>();
 
         for (Member member1 : member) {
             boolean state = false;
@@ -106,7 +108,7 @@ public class MemberService {
                 }
             }
 
-            SearchResponse searchDto = SearchResponse.builder()
+            SearchResponseDto searchDto = SearchResponseDto.builder()
                     .nickname(member1.getNickname())
                     .profilePicture(member1.getProfilePicture())
                     .state(state)
@@ -114,7 +116,7 @@ public class MemberService {
             searchDtoList.add(searchDto);
         }
 
-        SearchPageDto searchPageDto = SearchPageDto.builder()
+        SearchPageResponseDto searchPageDto = SearchPageResponseDto.builder()
                 .searchDto(searchDtoList)
                 .pageNo(member.getPageable().getPageNumber())
                 .pageSize(member.getPageable().getPageSize())
