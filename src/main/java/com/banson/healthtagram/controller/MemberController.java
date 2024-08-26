@@ -22,6 +22,6 @@ public class MemberController {
         memberService.cancelAccount(principal);
         log.info("principal = {}", principal.getName());
 
-        return "redirect:/api/home";
+        return "redirect:/api/signup";
     }
 }

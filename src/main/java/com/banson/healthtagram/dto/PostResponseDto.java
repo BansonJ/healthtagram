@@ -23,4 +23,5 @@ public class PostResponseDto {
     private Long heartCount;
     private LocalDateTime createdAt;
     private boolean likeState;
+    private Long postId;
 }

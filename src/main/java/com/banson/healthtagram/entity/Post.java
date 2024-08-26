@@ -1,5 +1,6 @@
 package com.banson.healthtagram.entity;
 
+import com.banson.healthtagram.repository.ReplyRepository;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -43,12 +44,15 @@ public class Post {
     @JoinColumn(name = "member")
     private Member member;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<PostHeart> postHeartList;
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Reply> replyList;
 
     public void updateMember(Member member) {
         this.member = member;
-        member.addPost(this);
+//        member.addPost(this);
     }
 
     public void plusHeartCount() {
@@ -57,6 +61,10 @@ public class Post {
 
     public void minusHeartCount() {
         this.heartCount--;
+    }
+
+    public void addReply(Reply reply) {
+        this.replyList.add(reply);
     }
 
 }

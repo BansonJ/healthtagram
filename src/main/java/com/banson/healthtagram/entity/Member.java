@@ -46,17 +46,20 @@ public class Member {
     @Column(name = "createdAt")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "follower")
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followingList;
 
-    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followerList;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Post> postList;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member")
     private List<PostHeart> postHeartList;
+
+    @OneToMany(mappedBy = "member")
+    private List<ReplyHeart> replyHeartList;
 
     public void addPost(Post post) {
         this.postList.add(post);

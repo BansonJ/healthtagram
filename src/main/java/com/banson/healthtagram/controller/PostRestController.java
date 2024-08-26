@@ -33,7 +33,6 @@ import java.util.List;
 public class PostRestController {
     private final PostService postService;
     private final MemberService memberService;
-    private final PostHeartRepository postHeartRepository;
 
     private Member findUser() { //내 Member 정보
         return memberService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());

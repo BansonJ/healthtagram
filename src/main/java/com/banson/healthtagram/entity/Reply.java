@@ -1,16 +1,23 @@
 package com.banson.healthtagram.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Reply {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column
@@ -20,6 +27,27 @@ public class Reply {
 
     private Long heartCount;
 
+    @CreatedDate
     private LocalDateTime replyDate;
+
+    @OneToMany(mappedBy = "reply", fetch = FetchType.EAGER)
+    private List<ReplyHeart> replyHeartList;
+
+    @ManyToOne
+    @JoinColumn(name = "post")
+    private Post post;
+
+    public void plusHeartCount() {
+        this.heartCount++;
+    }
+
+    public void minusHeartCount() {
+        this.heartCount--;
+    }
+
+    public void updatePost(Post post) {
+        this.post = post;
+//        post.addReply(this);
+    }
 
 }

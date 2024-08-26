@@ -98,6 +98,7 @@ public class PostService {
                     .tagList(Arrays.stream(post.getTag().split("#")).toList())
                     .nickname(post.getNickname())
                     .likeState(state)
+                    .postId(post.getId())
                     .build();
             postResponseDtoList.add(postResponseDto);
         }
@@ -116,16 +117,16 @@ public class PostService {
 
     @Transactional
     public void likePost(Long postId, Member member) {
-        PostHeart exist = postHeartRepository.findByMemberAndPost(member, postRepository.findById(postId).orElseThrow());
+        Post post = this.findById(postId);
+        PostHeart exist = postHeartRepository.findByMemberAndPost(member, post);
         if (exist != null) {
             return;
         }
 
-        Post post = this.findById(postId);
         post.plusHeartCount();
 
         PostHeart postHeart = PostHeart.builder()
-                .post(postRepository.findById(postId).orElseThrow())
+                .post(post)
                 .member(member)
                 .build();
         postHeartRepository.save(postHeart);
@@ -133,12 +134,12 @@ public class PostService {
 
     @Transactional
     public void cancelLikePost(Long postId, Member member) {
-        PostHeart exist = postHeartRepository.findByMemberAndPost(member, postRepository.findById(postId).orElseThrow());
+        Post post = this.findById(postId);
+        PostHeart exist = postHeartRepository.findByMemberAndPost(member, post);
         if (exist == null) {
             return;
         }
 
-        Post post = this.findById(postId);
         post.minusHeartCount();
 
         postHeartRepository.deleteByPostAndMember(post, member);

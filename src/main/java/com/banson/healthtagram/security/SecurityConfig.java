@@ -40,10 +40,6 @@ public class SecurityConfig {
                         .requestMatchers(
                                 new AntPathRequestMatcher("/api/signin"),
                                 new AntPathRequestMatcher("/api/signup"),
-                                new AntPathRequestMatcher("/api/home"),
-                                new AntPathRequestMatcher("/api/memberPage/**"),
-                                new AntPathRequestMatcher("/api/tagSearching"),
-                                new AntPathRequestMatcher("/api/post/**"),
                                 new AntPathRequestMatcher("/api/insertData"),
                                 PathRequest.toH2Console())
                         .permitAll()
