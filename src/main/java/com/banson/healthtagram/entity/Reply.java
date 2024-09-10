@@ -47,7 +47,6 @@ public class Reply {
 
     public void updatePost(Post post) {
         this.post = post;
-//        post.addReply(this);
     }
 
 }

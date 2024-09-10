@@ -61,8 +61,4 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<ReplyHeart> replyHeartList;
 
-    public void addPost(Post post) {
-        this.postList.add(post);
-    }
-
 }

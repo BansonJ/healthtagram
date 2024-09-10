@@ -52,7 +52,6 @@ public class Post {
 
     public void updateMember(Member member) {
         this.member = member;
-//        member.addPost(this);
     }
 
     public void plusHeartCount() {
@@ -61,10 +60,6 @@ public class Post {
 
     public void minusHeartCount() {
         this.heartCount--;
-    }
-
-    public void addReply(Reply reply) {
-        this.replyList.add(reply);
     }
 
 }

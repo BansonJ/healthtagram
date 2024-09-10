@@ -76,8 +76,10 @@ public class PostService {
 
     public List<PostResponseDto> findPostInMember(Long lastPostId, Member member, List<Member> id,Pageable pageable) {
         List<Post> postList = postRepository.findByIdLessThanAndMemberIn(lastPostId, id, pageable);
-        log.info("여기가 첫번째:{}",postList);
         List<PostHeart> postHeartList = postHeartRepository.findByMemberAndPostIn(member, postList);
+        log.info("멤버:{}", postList.get(0).getMember());
+        Member member1 = memberService.findByEmail(member.getEmail());
+        log.info("포스트리스트: {}", member1.getPostList());
 
         List<PostResponseDto> postResponseDtoList = new ArrayList<>();
 
@@ -102,7 +104,6 @@ public class PostService {
                     .build();
             postResponseDtoList.add(postResponseDto);
         }
-        log.info("여기가 두번쨰:{}", postResponseDtoList);
 
         return postResponseDtoList;
     }

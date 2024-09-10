@@ -128,6 +128,8 @@ public class MemberService {
     }
 
     public void insertData() {
+        List<Member> memberList = new ArrayList<>();
+
         for (int i = 0; i < 30; i++) {
             Member member = Member.builder()
                     .email("wjdtmdgus313@naver.com" + i)
@@ -135,7 +137,9 @@ public class MemberService {
                     .name("정승현"+i)
                     .nickname("banson"+i)
                     .build();
-            memberRepository.save(member);
+            memberList.add(member);
         }
+
+        memberRepository.saveAll(memberList);
     }
 }
