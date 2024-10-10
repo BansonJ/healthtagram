@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
+import java.sql.Time;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +41,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final FollowRepository followRepository;
+    private final RedisTemplate<String ,Object> redisTemplate;
 
     public Member findByNickname(String nickname) {
         return memberRepository.findByNickname(nickname);
@@ -79,6 +85,11 @@ public class MemberService {
         if (!passwordEncoder.matches(loginDto.getPassword(), member.getPassword())) {
             throw new IllegalArgumentException("잘못된 비밀번호");
         }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+
+        redisTemplate.opsForValue().set(loginDto.getEmail(), LocalDateTime.now().format(formatter), Duration.ofDays(3));
+        log.info("value: {}" , redisTemplate.opsForValue().get(loginDto.getEmail()));
 
         return createToken(loginDto.getEmail());
     }

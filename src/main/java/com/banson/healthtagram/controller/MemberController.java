@@ -17,7 +17,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @DeleteMapping("/cancelAccount")
+    @DeleteMapping("/cancelAccount")    //회원탈퇴
     public String deleteUser(Principal principal) {
         memberService.cancelAccount(principal);
         log.info("principal = {}", principal.getName());
