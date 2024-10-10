@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @Builder
 public class ChatRoom {
+
     private String roomId;
     private String name;
 }
