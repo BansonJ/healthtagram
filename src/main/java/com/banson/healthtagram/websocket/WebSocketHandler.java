@@ -26,11 +26,13 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        /*{
+        /*
+        {
             "sender":"정승현",
-            "roomId":"36589b3d-b14c-4be6-b10b-71564f22051d",
+            "roomId":"f07cc15c-dc84-49cb-bff3-a708bc477c5d",
             "message":"안녕하시오."
-        }*/
+        }
+        */
 
         String payload = message.getPayload();
         log.info("페이로드:{}", payload);
