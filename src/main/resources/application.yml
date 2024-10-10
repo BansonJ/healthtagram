@@ -5,10 +5,6 @@ spring:
   application:
     name: healthtagram
 
-  redis:
-    host: localhost
-    port: 6379
-
   h2:
     console:
       settings:
