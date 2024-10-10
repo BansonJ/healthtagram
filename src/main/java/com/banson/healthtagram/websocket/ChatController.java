@@ -14,18 +14,18 @@ public class ChatController {
 
     private final ChatService chatService;
 
-    @PostMapping("/cre")
+    @PostMapping("/newRoom")
     public String createRoom(@RequestParam(name = "myName") String myName, @RequestParam(name = "fName") String fName) {
 
         return chatService.createRoom(myName, fName);
     }
 
-    @GetMapping("/get")
+    @GetMapping("/allRoom")
     public Set findAllRoom(@RequestParam(name = "myName") String myName) {
         return chatService.findAllRoom(myName);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping("/outRoom")
     public void outRoom(@RequestParam(name = "name") String name, @RequestParam(name = "roomId") String roomId) {
         chatService.outRoom(roomId, name);
     }
