@@ -40,19 +40,22 @@ public class PostRestController {
 
     @PostMapping("/post")   //포스트 저장
     public ResponseEntity savePost(@RequestPart(value = "multipartFile") List<MultipartFile> multipartFile, @Valid @RequestPart(name = "postRequestDto") PostRequestDto postRequestDto) {
-        String nickname = findUser().getNickname();
-        postService.savePost(postRequestDto, multipartFile, nickname);
+        if (findUser() != null) {
+            postService.savePost(postRequestDto, multipartFile, findUser().getNickname());
+        }
         return ResponseEntity.status(201).build();
     }
 
     @GetMapping("/home")    //기본 페이지
     public ResponseEntity home(@RequestParam(name = "lastPostId") Long lastPostId, @PageableDefault(size = 3) Pageable pageable) {
         Member member = findUser();
-
         List<Member> id = new ArrayList<>();
-        id.add(member);
-        for (Follow follow : member.getFollowingList()) {
-            id.add(follow.getFollowing());
+
+        if (member != null) {
+            id.add(member);
+            for (Follow follow : member.getFollowingList()) {
+                id.add(follow.getFollowing());
+            }
         }
 
         List<PostResponseDto> postList = postService.findPostInMember(lastPostId, member, id, pageable);
@@ -75,7 +78,7 @@ public class PostRestController {
     }
 
     @GetMapping("/memberPage/{nickname}/post")  //특정 멤버 포스트
-    public ResponseEntity post(@PathVariable(name = "nickname") String nickname, @RequestParam(name = "lastPostId") Long lastPostId, @PageableDefault(size = 3) Pageable pageable) {
+    public ResponseEntity memberPost(@PathVariable(name = "nickname") String nickname, @RequestParam(name = "lastPostId") Long lastPostId, @PageableDefault(size = 3) Pageable pageable) {
         List<Member> memberList = new ArrayList<>();
         memberList.add(memberService.findByNickname(nickname));
         List<PostResponseDto> postList = postService.findPostInMember(lastPostId, findUser(), memberList, pageable);

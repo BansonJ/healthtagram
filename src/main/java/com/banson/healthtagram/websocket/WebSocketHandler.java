@@ -29,7 +29,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         /*
         {
             "sender":"정승현",
-            "roomId":"f07cc15c-dc84-49cb-bff3-a708bc477c5d",
+            "roomId":"77d5fea8-0662-4d49-891d-c1ee748e4806",
             "message":"안녕하시오."
         }
         */

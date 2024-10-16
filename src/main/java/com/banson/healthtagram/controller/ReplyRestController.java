@@ -39,8 +39,11 @@ public class ReplyRestController {
     }
 
     @PostMapping("/{postId}/replyUp")   //댓글 쓰기
-    public ResponseEntity replyUp(@PathVariable(name = "postId") Long postId, @Valid @RequestBody ReplyRequestDto replyRequestDto, Principal principal) {
-        Reply reply = replyService.replyUp(postId, replyRequestDto, findUser().getNickname());
+    public ResponseEntity replyUp(@PathVariable(name = "postId") Long postId, @Valid @RequestBody ReplyRequestDto replyRequestDto) {
+        Reply reply = null;
+        if (findUser() != null) {
+            reply = replyService.replyUp(postId, replyRequestDto, findUser().getNickname());
+        }
 
         return ResponseEntity.status(201).body(reply);
     }

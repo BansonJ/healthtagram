@@ -58,7 +58,6 @@ public class MemberRestController {
     public ResponseEntity memberPage(@PathVariable(name = "nickname") String nickname, @PageableDefault(size = 3) Pageable pageable) {
         Member me = findUser();
         Member member = memberService.findByNickname(nickname);
-        log.info("post(0):{}", member.getPostList().get(0));
         List<Post> post = postService.findByNickname(member.getNickname(), pageable);
 
         ArrayList<String> filePath = new ArrayList<>();
@@ -68,7 +67,7 @@ public class MemberRestController {
 
         String followState;
 
-        if (me.equals(member)) {
+        if (me != null && me.equals(member)) {
             followState = "me";
         } else {
             followState = followService.followState(me, member);

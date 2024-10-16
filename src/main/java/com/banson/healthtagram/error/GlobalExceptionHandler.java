@@ -1,3 +1,4 @@
+/*
 package com.banson.healthtagram.error;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,3 +45,4 @@ public class GlobalExceptionHandler {
     }
 
 }
+*/

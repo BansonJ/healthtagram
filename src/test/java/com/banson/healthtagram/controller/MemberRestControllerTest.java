@@ -1,98 +1,177 @@
-/*
 package com.banson.healthtagram.controller;
 
-import com.banson.healthtagram.dto.LoginRequest;
-import com.banson.healthtagram.dto.SearchPageDto;
-import com.banson.healthtagram.dto.SignupRequest;
+import com.banson.healthtagram.dto.LoginRequestDto;
+import com.banson.healthtagram.dto.SearchPageResponseDto;
+import com.banson.healthtagram.dto.SearchResponseDto;
+import com.banson.healthtagram.dto.SignupRequestDto;
 import com.banson.healthtagram.entity.Member;
+import com.banson.healthtagram.entity.Post;
+import com.banson.healthtagram.jwt.JwtTokenProvider;
+import com.banson.healthtagram.service.FollowService;
 import com.banson.healthtagram.service.MemberService;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import com.banson.healthtagram.service.PostService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
+import java.util.ArrayList;
+import java.util.List;
 
-@TestInstance(value = PER_CLASS)
-@SpringBootTest
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(MemberRestController.class)
+@MockBean(JpaMetamodelMappingContext.class)
 class MemberRestControllerTest {
 
-    @Autowired
-    private MemberService memberService;
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @BeforeAll
-    void insertData() {
-        memberService.insertData();
-    }
+    @Autowired
+    MockMvc mockMvc;
+    @MockBean
+    private MemberService memberService;
+    @MockBean
+    private PostService postService;
+    @MockBean
+    private FollowService followService;
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     @DisplayName("회원가입 성공")
-    void signup() {
+    @WithMockUser
+    void signup() throws Exception {
         //given
-        SignupRequest signupRequest = SignupRequest.builder()
-                .email("wjdtmdgus313@naver.com50")
-                .name("banson50")
+        SignupRequestDto signupDto = SignupRequestDto.builder()
+                .email("wjdtmdgus313@naver.com44")
+                .name("banson44")
                 .password("1234")
                 .checkPassword("1234")
-                .nickname("banson50")
+                .nickname("banson44")
                 .build();
+        MockMultipartFile mockMultipartFile = new MockMultipartFile("multipartFile", "test.png", "png", "<<data>>".getBytes());
         //when
-        Member member = memberService.findByNickname("banson50");
+        given(memberService.signup(any(),any())).willReturn(Member.builder()
+                .name("정승현1")
+                .email("wjdtmdgus313@naver.com1")
+                .nickname("banson1")
+                .password("1234")
+                .profilePicture(null)
+                .build());
         //then
-        Assertions.assertThat(member).isNotNull();
+        mockMvc.perform(multipart("/api/signup")
+                        .file(mockMultipartFile)
+                        .file(new MockMultipartFile("signupDto", "", "application/json", objectMapper.writeValueAsString(signupDto).getBytes()))
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON).characterEncoding("UTF-8")
+                .with(csrf()))
+                .andExpect(status().isCreated())
+                .andDo(print());
     }
 
     @Test
     @DisplayName("로그인 성공")
-    void signin() {
+    @WithMockUser
+    void signin() throws Exception {
         //given
-        LoginRequest loginRequest = LoginRequest.builder()
+        LoginRequestDto loginRequest = LoginRequestDto.builder()
                 .email("wjdtmdgus313@naver.com2")
-                .password("1234").build();
+                .password("1234")
+                .build();
+        Member member = Member.builder()
+                .name("정승현1")
+                .email("wjdtmdgus313@naver.com1")
+                .nickname("banson1")
+                .password("1234")
+                .profilePicture(null)
+                .build();
         //when
-        String token = memberService.signin(loginRequest);
+        given(memberService.signin(loginRequest)).willReturn("token");
         //then
-        Assertions.assertThat(token).isNotNull();
+        mockMvc.perform(post("/api/signin")
+                        .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 
     @Test
-    @DisplayName("마이페이지 불러오기 성공")
-    void myPage() {
+    @DisplayName("멤버페이지 불러오기 성공")
+    @WithMockUser
+    void memberPage() throws Exception {
         //given
-        String email = "wjdtmdgus313@naver.com3";
-        //when
-        //then
-        Assertions.assertThat(memberDto.getEmail()).isEqualTo(email);
-    }
+        String nickname = "banson1";
 
-    @Test
-    @DisplayName("회원 정보 조회")
-    void memberPage() {
-        //given
-        String nickname = "banson3";
+        Member member = Member.builder()
+                .name("정승현1")
+                .email("wjdtmdgus313@naver.com1")
+                .nickname("banson1")
+                .password("1234")
+                .profilePicture(null)
+                .build();
+        List<Post> postList = new ArrayList<>();
+        Pageable pageable = null;
         //when
-
+        given(memberService.findByNickname(nickname)).willReturn(member);
+        given(postService.findByNickname(any(), any())).willReturn(postList);
+        given(followService.followState(any(),any())).willReturn("me");
         //then
-        Assertions.assertThat("wjdtmdgus313@naver.com3").isEqualTo(memberDto.getEmail());
+        mockMvc.perform(get("/api/memberPage/{nickname}", nickname)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(pageable))
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nickname").value("banson1"))
+                .andDo(print());
     }
 
     @Test
     @DisplayName("닉네임 검색")
-    void nicknameSearch() {
+    @WithMockUser
+    void nicknameSearch() throws Exception {
         //given
-        String search = "ban";
+        Pageable pageable = null;
+        List<SearchResponseDto> searchDtoList = new ArrayList<>();
+        SearchResponseDto searchResponseDto = SearchResponseDto.builder()
+                .nickname("banson1")
+                .profilePicture(null)
+                .state(false)
+                .build();
+        searchDtoList.add(searchResponseDto);
+        SearchPageResponseDto searchPageDto = SearchPageResponseDto.builder()
+                .searchDto(searchDtoList)
+                .pageNo(1)
+                .pageSize(1)
+                .totalPages(1)
+                .totalElements(1)
+                .build();
         //when
+        given(memberService.search(any(), any(), any())).willReturn(searchPageDto);
         //then
-        Assertions.assertThat(searchPageDto.getSearchDto().get(0).getNickname()).isEqualTo("banson0");
+        mockMvc.perform(get("/api/nicknameSearching")
+                .param("search", "ban")
+                        .content(objectMapper.writeValueAsString(pageable))
+                .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.searchDto[0].nickname").value("banson1"))
+                .andDo(print());
     }
 
-}*/
+}
