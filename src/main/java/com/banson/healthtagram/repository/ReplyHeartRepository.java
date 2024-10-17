@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface ReplyHeartRepository extends JpaRepository<ReplyHeart, Long> {
     ReplyHeart findByMemberAndReply(Member member, Reply reply);
 
-    void deleteByReplyAndMember(Reply reply, Member member);
+    ReplyHeart deleteByReplyAndMember(Reply reply, Member member);
 }

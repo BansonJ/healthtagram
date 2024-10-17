@@ -16,12 +16,11 @@ import java.util.List;
 public class FollowService {
 
     private final FollowRepository followRepository;
-    private final MemberService memberService;
 
     public void following(Member following, Member follower) {
         if (following == follower) {
             throw new IllegalArgumentException();
-        } else if (followRepository.findByFollowerAndFollowing(follower, following).isPresent()) {
+        } else if (followRepository.findByFollowerAndFollowing(follower, following) != null) {
             throw new IllegalArgumentException();
         }
 

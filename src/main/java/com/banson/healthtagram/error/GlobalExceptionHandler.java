@@ -1,48 +1,47 @@
-/*
 package com.banson.healthtagram.error;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.util.InternalException;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity notAuthorize() {
+    public ResponseEntity notAuthorize(AuthorizationDeniedException e) {
         ErrorCode errorCode = ErrorCode.NotAuthorized;
         return ResponseEntity.status(errorCode.getCode()).body(errorCode.getMessage());
     }
 
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity badRequest() {
+    @ExceptionHandler(HttpClientErrorException.BadRequest.class)
+    public ResponseEntity badRequest(BadRequestException e) {
         ErrorCode errorCode = ErrorCode.BadRequest;
         return ResponseEntity.status(errorCode.getCode()).body(errorCode.getMessage());
     }
 
-    @ExceptionHandler({IllegalArgumentException.class, HttpMessageNotReadableException.class,MethodArgumentNotValidException.class})
-    public ResponseEntity illegalArgumentError() throws JsonProcessingException {
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity illegalArgumentError(IllegalArgumentException e) {
         ErrorCode errorCode = ErrorCode.IllegalArgumentError;
         return ResponseEntity.status(errorCode.getCode()).body(errorCode.getMessage());
     }
 
-    @ExceptionHandler(InternalException.class)
-    public ResponseEntity internalException() {
+    @ExceptionHandler(InternalError.class)
+    public ResponseEntity internalException (InternalException e) {
         ErrorCode errorCode = ErrorCode.InternalError;
         return ResponseEntity.status(errorCode.getCode()).body(errorCode.getMessage());
     }
 
     @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity nullPointerException() {
+    public ResponseEntity nullPointerException(NullPointerException e) {
         ErrorCode errorCode = ErrorCode.NullPointError;
         return ResponseEntity.status(errorCode.getCode()).body(errorCode.getMessage());
     }
 
 }
-*/

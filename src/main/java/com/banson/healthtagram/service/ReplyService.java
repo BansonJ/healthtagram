@@ -59,11 +59,11 @@ public class ReplyService {
     }
 
     @Transactional
-    public void likeReply(Member member, Long replyId) {
+    public ReplyHeart likeReply(Member member, Long replyId) {
         Reply reply = replyRepository.findById(replyId).orElseThrow();
         ReplyHeart exist = replyHeartRepository.findByMemberAndReply(member, reply);
         if (exist != null) {
-            return;
+            return exist;
         }
 
         reply.plusHeartCount();
@@ -72,19 +72,20 @@ public class ReplyService {
                 .reply(reply)
                 .member(member)
                 .build();
-        replyHeartRepository.save(replyHeart);
+        ReplyHeart saved = replyHeartRepository.save(replyHeart);
+        return saved;
     }
 
     @Transactional
-    public void cancelLikeReply(Long replyId, Member member) {
+    public ReplyHeart cancelLikeReply(Long replyId, Member member) {
         Reply reply = replyRepository.findById(replyId).orElseThrow();
         ReplyHeart exist = replyHeartRepository.findByMemberAndReply(member, reply);
         if (exist == null) {
-            return;
+            return null;
         }
 
         reply.minusHeartCount();
 
-        replyHeartRepository.deleteByReplyAndMember(reply, member);
+        return replyHeartRepository.deleteByReplyAndMember(reply, member);
     }
 }

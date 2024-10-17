@@ -41,9 +41,9 @@ public class PostRestController {
     @PostMapping("/post")   //포스트 저장
     public ResponseEntity savePost(@RequestPart(value = "multipartFile") List<MultipartFile> multipartFile, @Valid @RequestPart(name = "postRequestDto") PostRequestDto postRequestDto) {
         if (findUser() != null) {
-            postService.savePost(postRequestDto, multipartFile, findUser().getNickname());
+            PostResponseDto postResponseDto = postService.savePost(postRequestDto, multipartFile, findUser().getNickname());
         }
-        return ResponseEntity.status(201).build();
+        return ResponseEntity.status(201).body(postRequestDto);
     }
 
     @GetMapping("/home")    //기본 페이지

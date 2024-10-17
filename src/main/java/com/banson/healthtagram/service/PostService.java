@@ -8,7 +8,6 @@ import com.banson.healthtagram.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +34,7 @@ public class PostService {
     private final PostHeartRepository postHeartRepository;
 
     @Transactional
-    public void savePost(PostRequestDto postRequestDto, List<MultipartFile> multipartFile, String nickname) {
+    public PostResponseDto savePost(PostRequestDto postRequestDto, List<MultipartFile> multipartFile, String nickname) {
 
         List<String> path = new ArrayList<>();
 
@@ -60,7 +59,7 @@ public class PostService {
                 .filePath(path)
                 .heartCount(0L)
                 .build();
-        postRepository.save(post);
+        Post savedPost = postRepository.save(post);
         post.updateMember(memberService.findByNickname(nickname));
 
         int i = 0;
@@ -72,14 +71,22 @@ public class PostService {
             postImageRepository.save(postImage);
             i++;
         }
+        return PostResponseDto.builder()
+                .content(savedPost.getContent())
+                .createdAt(savedPost.getCreatedAt())
+                .filePath(savedPost.getFilePath())
+                .heartCount(savedPost.getHeartCount())
+                .tagList(Arrays.stream(post.getTag().replaceAll("#", " ").trim().split(" ")).toList())
+                .nickname(savedPost.getNickname())
+                .likeState(false)
+                .postId(savedPost.getId())
+                .build();
     }
 
     public List<PostResponseDto> findPostInMember(Long lastPostId, Member member, List<Member> id,Pageable pageable) {
         List<Post> postList = postRepository.findByIdLessThanAndMemberIn(lastPostId, id, pageable);
         List<PostHeart> postHeartList = postHeartRepository.findByMemberAndPostIn(member, postList);
         log.info("멤버:{}", postList.get(0).getMember());
-        Member member1 = memberService.findByEmail(member.getEmail());
-        log.info("포스트리스트: {}", member1.getPostList());
 
         List<PostResponseDto> postResponseDtoList = new ArrayList<>();
 
@@ -166,7 +173,7 @@ public class PostService {
                     .createdAt(post.getCreatedAt())
                     .filePath(post.getFilePath())
                     .heartCount(post.getHeartCount())
-                    .tagList(Arrays.stream(post.getTag().split("#")).toList())
+                    .tagList(Arrays.stream(post.getTag().replaceAll("#", " ").trim().split(" ")).toList())
                     .nickname(post.getNickname())
                     .likeState(state)
                     .build();
