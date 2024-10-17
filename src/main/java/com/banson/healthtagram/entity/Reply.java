@@ -33,7 +33,7 @@ public class Reply {
     @OneToMany(mappedBy = "reply", fetch = FetchType.EAGER)
     private List<ReplyHeart> replyHeartList;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "post")
     private Post post;
 

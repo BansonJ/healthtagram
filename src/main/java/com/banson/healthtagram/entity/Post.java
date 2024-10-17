@@ -40,7 +40,7 @@ public class Post {
     @Column(name = "tag")
     private String tag;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "member")
     private Member member;
 

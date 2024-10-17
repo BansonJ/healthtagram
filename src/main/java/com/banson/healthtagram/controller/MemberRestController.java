@@ -90,8 +90,7 @@ public class MemberRestController {
 
     @GetMapping("/insertData")  //데이터 30개 삽입
     public ResponseEntity insertData() {
-//        memberService.insertData();
-        throw new IllegalArgumentException();
-//        return ResponseEntity.ok().build();
+        memberService.insertData();
+        return ResponseEntity.ok().build();
     }
 }

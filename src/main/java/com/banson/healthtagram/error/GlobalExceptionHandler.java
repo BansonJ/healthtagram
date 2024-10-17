@@ -32,12 +32,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getCode()).body(errorCode.getMessage());
     }
 
-    @ExceptionHandler(InternalError.class)
-    public ResponseEntity internalException (InternalException e) {
-        ErrorCode errorCode = ErrorCode.InternalError;
-        return ResponseEntity.status(errorCode.getCode()).body(errorCode.getMessage());
-    }
-
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity nullPointerException(NullPointerException e) {
         ErrorCode errorCode = ErrorCode.NullPointError;

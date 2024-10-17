@@ -4,11 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
-    BadRequest(800, "무슨 요청을 하신겁니까?"),
+    BadRequest(800, "요청이 잘못됐어요"),
     NotAuthorized(801, "인증안됨;"),
     IllegalArgumentError(802, "값을 제대로 못넣으셨어요"),
-    InternalError(803, "서버가 이상해요"),
-    NullPointError(804, "값이 없어;");
+    NullPointError(804, "값이 없네요");
 
     private int code;
     private String message;
