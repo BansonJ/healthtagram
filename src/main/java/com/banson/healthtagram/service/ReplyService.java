@@ -77,15 +77,12 @@ public class ReplyService {
     }
 
     @Transactional
-    public ReplyHeart cancelLikeReply(Long replyId, Member member) {
+    public void cancelLikeReply(Long replyId, Member member) {
         Reply reply = replyRepository.findById(replyId).orElseThrow();
         ReplyHeart exist = replyHeartRepository.findByMemberAndReply(member, reply);
-        if (exist == null) {
-            return null;
+        if (!(exist == null)) {
+            reply.minusHeartCount();
+            replyHeartRepository.deleteByReplyAndMember(reply, member);
         }
-
-        reply.minusHeartCount();
-
-        return replyHeartRepository.deleteByReplyAndMember(reply, member);
     }
 }

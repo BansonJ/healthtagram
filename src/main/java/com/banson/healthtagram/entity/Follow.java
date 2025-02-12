@@ -14,11 +14,11 @@ public class Follow {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "followerList")
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @JoinColumn(name = "follower")
     private Member follower;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "followingList")
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @JoinColumn(name = "following")
     private Member following;
 }

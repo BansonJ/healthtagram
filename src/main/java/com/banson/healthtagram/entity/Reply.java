@@ -30,11 +30,11 @@ public class Reply {
     @CreatedDate
     private LocalDateTime replyDate;
 
-    @OneToMany(mappedBy = "reply", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "reply")
     private List<ReplyHeart> replyHeartList;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "post")
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
     private Post post;
 
     public void plusHeartCount() {

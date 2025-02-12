@@ -63,7 +63,7 @@ public class FollowService {
     }
 
     public String followState(Member me, Member friend) {
-        if (followRepository.findByFollowerAndFollowing(me, friend).isPresent()) {
+        if (followRepository.findByFollowerAndFollowing(me, friend) != null) {
             return "following";
         }
         return "unfollowing";

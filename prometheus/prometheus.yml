@@ -1,0 +1,8 @@
+global:
+  external_labels: # 외부 시스템에 표시할 이 서버의 레이블
+    monitor: 'prometheus'
+scrape_configs:
+  - job_name: 'prometheus'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['healthtagram:8181']

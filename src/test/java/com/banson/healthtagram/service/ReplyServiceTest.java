@@ -145,7 +145,7 @@ class ReplyServiceTest {
         when(replyRepository.findById(anyLong())).thenReturn(Optional.ofNullable(reply));
         when(replyHeartRepository.findByMemberAndReply(member1, reply)).thenReturn(replyHeart);
         //when
-        ReplyHeart result = replyService.cancelLikeReply(2L, member1);
+        replyService.cancelLikeReply(2L, member1);
         //then
     }
 

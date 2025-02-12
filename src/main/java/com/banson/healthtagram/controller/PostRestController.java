@@ -40,10 +40,9 @@ public class PostRestController {
 
     @PostMapping("/post")   //포스트 저장
     public ResponseEntity savePost(@RequestPart(value = "multipartFile") List<MultipartFile> multipartFile, @Valid @RequestPart(name = "postRequestDto") PostRequestDto postRequestDto) {
-        if (findUser() != null) {
-            PostResponseDto postResponseDto = postService.savePost(postRequestDto, multipartFile, findUser().getNickname());
-        }
-        return ResponseEntity.status(201).body(postRequestDto);
+        PostResponseDto postResponseDto = postService.savePost(postRequestDto, multipartFile, findUser());
+
+        return ResponseEntity.status(201).body(postResponseDto);
     }
 
     @GetMapping("/home")    //기본 페이지
@@ -91,5 +90,11 @@ public class PostRestController {
         List<PostResponseDto> postResponseDtoList = postService.tagSearching(tagSearching, latPostId, findUser(), pageable);
 
         return ResponseEntity.ok(postResponseDtoList);
+    }
+
+    @PostMapping("/insertPost")
+    public ResponseEntity insertPost() {
+        postService.insertPost();
+        return ResponseEntity.status(201).build();
     }
 }

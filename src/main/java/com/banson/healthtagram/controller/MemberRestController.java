@@ -1,17 +1,20 @@
 package com.banson.healthtagram.controller;
 
-import com.banson.healthtagram.dto.*;
+import com.banson.healthtagram.dto.LoginRequestDto;
+import com.banson.healthtagram.dto.MemberResponseDto;
+import com.banson.healthtagram.dto.SearchPageResponseDto;
+import com.banson.healthtagram.dto.SignupRequestDto;
 import com.banson.healthtagram.entity.Member;
 import com.banson.healthtagram.entity.Post;
-import com.banson.healthtagram.redis.RedisConfig;
 import com.banson.healthtagram.service.FollowService;
 import com.banson.healthtagram.service.MemberService;
 import com.banson.healthtagram.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +23,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +45,7 @@ public class MemberRestController {
     }
 
     @PostMapping("/signup") //회원가입
-    public ResponseEntity signup(@Valid @RequestPart(name = "signupDto") SignupRequestDto signupDto, @RequestPart(name = "multipartFile") MultipartFile multipartFile) {
+    public ResponseEntity signup(@Valid @RequestPart(name = "signupDto") SignupRequestDto signupDto, @RequestPart(name = "multipartFile") MultipartFile multipartFile) throws IOException {
         Member member = memberService.signup(signupDto, multipartFile);
 
         if (member == null) {
@@ -46,6 +53,21 @@ public class MemberRestController {
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity profile(@RequestParam(name = "nickname") String nickname) throws IOException {
+        Member member = memberService.findByNickname(nickname);
+        Resource resource = null;
+        HttpHeaders header = new HttpHeaders();
+
+        if (member.getProfilePicture() != null) {
+            resource = new FileSystemResource(member.getProfilePicture());
+            Path filePath = Paths.get(member.getProfilePicture());
+            header.add("Content-Type", Files.probeContentType(filePath));
+        }
+
+        return new ResponseEntity(resource, header, HttpStatus.OK);
     }
 
     @PostMapping("/signin") //로그인
@@ -81,7 +103,7 @@ public class MemberRestController {
         return ResponseEntity.ok(memberResponseDto);
     }
 
-    @GetMapping("/nicknameSearching")   //유저 닉네임 검색  ;검색 시 팔로우 관련 정보 필요;    ;점검필요;
+    @GetMapping("/nicknameSearching")   //유저 닉네임 검색  ;검색 시 팔로우 관련 정보 필요;
     public ResponseEntity nicknameSearch(@RequestParam(name = "search") String search, @PageableDefault(size = 5) Pageable pageable) {
         SearchPageResponseDto searchPageDto = memberService.search(search, pageable, findUser());
 
@@ -92,5 +114,10 @@ public class MemberRestController {
     public ResponseEntity insertData() {
         memberService.insertData();
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/jmeterTest")
+    public ResponseEntity test() {
+        return ResponseEntity.ok().body("dks");
     }
 }

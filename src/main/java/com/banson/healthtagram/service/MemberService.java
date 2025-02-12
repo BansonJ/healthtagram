@@ -136,6 +136,7 @@ public class MemberService {
                     .password(passwordEncoder.encode("1234"))
                     .name("정승현"+i)
                     .nickname("banson"+i)
+                    .profilePicture("acacacacacac")
                     .build();
             memberList.add(member);
         }

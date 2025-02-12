@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +35,7 @@ public class PostService {
     private final PostHeartRepository postHeartRepository;
 
     @Transactional
-    public PostResponseDto savePost(PostRequestDto postRequestDto, List<MultipartFile> multipartFile, String nickname) {
+    public PostResponseDto savePost(PostRequestDto postRequestDto, List<MultipartFile> multipartFile, Member member) {
 
         List<String> path = new ArrayList<>();
 
@@ -54,13 +55,13 @@ public class PostService {
 
         Post post = Post.builder()
                 .content(postRequestDto.getContent())
-                .nickname(nickname)
+                .nickname(member.getNickname())
                 .tag(postRequestDto.getTag())
                 .filePath(path)
                 .heartCount(0L)
                 .build();
         Post savedPost = postRepository.save(post);
-        post.updateMember(memberService.findByNickname(nickname));
+        post.updateMember(memberService.findByNickname(member.getNickname()));
 
         int i = 0;
         for (String path1 : path) {
@@ -86,7 +87,7 @@ public class PostService {
     public List<PostResponseDto> findPostInMember(Long lastPostId, Member member, List<Member> id,Pageable pageable) {
         List<Post> postList = postRepository.findByIdLessThanAndMemberIn(lastPostId, id, pageable);
         List<PostHeart> postHeartList = postHeartRepository.findByMemberAndPostIn(member, postList);
-        log.info("멤버:{}", postList.get(0).getMember());
+//        log.info("멤버:{}", postList.get(0).getMember());
 
         List<PostResponseDto> postResponseDtoList = new ArrayList<>();
 
@@ -182,5 +183,20 @@ public class PostService {
         log.info("여기가 두번쨰:{}", postResponseDtoList);
 
         return postResponseDtoList;
+    }
+
+    public void insertPost() {
+        List<Post> postList = new ArrayList<>();
+        for (int i = 0; i < 0; i++) {
+            Post post = Post.builder()
+                    .tag("gg"+i)
+                    .content("content"+i)
+                    .createdAt(LocalDateTime.now())
+                    .heartCount(0L)
+                    .nickname("banson1")
+                    .filePath(List.of("abcde")).build();
+            postList.add(post);
+        }
+        postRepository.saveAll(postList);
     }
 }

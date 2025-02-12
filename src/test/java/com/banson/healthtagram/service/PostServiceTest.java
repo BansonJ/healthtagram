@@ -5,6 +5,7 @@ import com.banson.healthtagram.dto.PostResponseDto;
 import com.banson.healthtagram.entity.Member;
 import com.banson.healthtagram.entity.Post;
 import com.banson.healthtagram.entity.PostHeart;
+import com.banson.healthtagram.entity.PostImage;
 import com.banson.healthtagram.repository.PostHeartRepository;
 import com.banson.healthtagram.repository.PostImageRepository;
 import com.banson.healthtagram.repository.PostRepository;
@@ -17,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.util.Arrays;
@@ -46,7 +46,7 @@ class PostServiceTest {
     @DisplayName("포스트 저장")
     void savePost() {
         //given
-        MockMultipartFile multipartFile = new MockMultipartFile("multipartFile", null, null, "".getBytes());
+        MockMultipartFile multipartFile = new MockMultipartFile("multipartFile", "", "", "".getBytes());
 
         Member member1 = Member.builder()
                 .name("정승현1")
@@ -66,10 +66,15 @@ class PostServiceTest {
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
                 .build();
+        PostImage postImage = PostImage.builder()
+                .postId(post.getId())
+                .storedFileName("filePath123456")
+                .originalFileName("filePath").build();
         when(postRepository.save(any())).thenReturn(post);
         when(memberService.findByNickname(any())).thenReturn(member1);
+        when(postImageRepository.save(any())).thenReturn(postImage);
         //when
-        PostResponseDto savedPost = postService.savePost(postRequestDto, Arrays.asList(multipartFile), "banson1");
+        PostResponseDto savedPost = postService.savePost(postRequestDto, Arrays.asList(multipartFile), member1);
         //then
         Assertions.assertThat(savedPost.getNickname()).isEqualTo(post.getNickname());
         Assertions.assertThat(savedPost.getTagList()).isEqualTo(Arrays.asList(post.getTag().replaceAll("#", " ").trim().split(" ")));

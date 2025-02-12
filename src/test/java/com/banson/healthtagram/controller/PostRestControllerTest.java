@@ -57,15 +57,25 @@ class PostRestControllerTest {
                 .content("content")
                 .tag("ss")
                 .build();
-        List<MultipartFile> multipartFileList = new ArrayList<>();
+        PostResponseDto postResponseDto = PostResponseDto.builder()
+                .postId(1L)
+                .tagList(List.of("gg", "ff"))
+                .heartCount(0L)
+                .filePath(List.of("filePath"))
+                .nickname("banson1")
+                .content("content")
+                .createdAt(LocalDateTime.now())
+                .build();
+        List<MockMultipartFile> multipartFileList = new ArrayList<>();
         MockMultipartFile multipartFile = new MockMultipartFile("multipartFile", "test.png", "png", "data".getBytes());
         multipartFileList.add(multipartFile);
 
         MockMultipartFile postMultipartFile = new MockMultipartFile("postRequestDto", "", "application/json", objectMapper.writeValueAsString(postRequestDto).getBytes());
         //when
+        given(postService.savePost(any(), any(), any())).willReturn(postResponseDto);
         //then
         mockMvc.perform(multipart("/api/post")
-                .file(multipartFile)
+                .file(multipartFileList.get(0))
                 .file(postMultipartFile)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON)
@@ -121,7 +131,6 @@ class PostRestControllerTest {
                 .postId(1L)
                 .build();
         postResponseDtoList.add(postResponseDto);
-        Pageable pageable = null;
 
         //when
         given(postService.findPostInMember(any(), any(), any(), any())).willReturn(postResponseDtoList);
