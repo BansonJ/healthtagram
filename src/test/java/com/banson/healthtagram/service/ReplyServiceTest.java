@@ -3,11 +3,11 @@ package com.banson.healthtagram.service;
 import com.banson.healthtagram.dto.ReplyRequestDto;
 import com.banson.healthtagram.dto.ReplyResponseDto;
 import com.banson.healthtagram.entity.Member;
-import com.banson.healthtagram.entity.Post;
-import com.banson.healthtagram.entity.Reply;
-import com.banson.healthtagram.entity.ReplyHeart;
-import com.banson.healthtagram.repository.ReplyHeartRepository;
-import com.banson.healthtagram.repository.ReplyRepository;
+import com.banson.healthtagram.entity.mongodb.Post;
+import com.banson.healthtagram.entity.mongodb.Reply;
+import com.banson.healthtagram.entity.mongodb.ReplyHeart;
+import com.banson.healthtagram.repository.mongoRepository.ReplyHeartRepository;
+import com.banson.healthtagram.repository.mongoRepository.ReplyRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -46,7 +45,7 @@ class ReplyServiceTest {
         Post post = Post.builder()
                 .content("content")
                 .nickname("banson1")
-                .tag("#dd#aa")
+//                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
                 .build();
@@ -57,7 +56,6 @@ class ReplyServiceTest {
                 .build();
         ReplyRequestDto replyRequestDto = ReplyRequestDto.builder().reply("reply").build();
 
-        when(postService.findById(post.getId())).thenReturn(post);
         when(replyRepository.save(any())).thenReturn(reply);
         //when
         Reply replyUp = replyService.replyUp(post.getId(), replyRequestDto, reply.getNickname());
@@ -72,7 +70,7 @@ class ReplyServiceTest {
         Post post = Post.builder()
                 .content("content")
                 .nickname("banson1")
-                .tag("#dd#aa")
+//                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
                 .build();
@@ -82,8 +80,7 @@ class ReplyServiceTest {
                 .nickname("banson2")
                 .build();
 
-        when(postService.findById(post.getId())).thenReturn(post);
-        when(replyRepository.findByPostAndIdLessThan(any(), anyLong(), any())).thenReturn(Arrays.asList(reply));
+        when(replyRepository.findByPostIdAndIdLessThan(any(), anyLong(), any())).thenReturn(Arrays.asList(reply));
         //when
         List<ReplyResponseDto> replyList = replyService.findReply(post.getId(), 20L, pageable);
         //then
@@ -108,16 +105,16 @@ class ReplyServiceTest {
                 .profilePicture(null)
                 .build();
         ReplyHeart replyHeart = ReplyHeart.builder()
-                .reply(reply)
-                .member(member1)
+                .replyId(reply.getId())
+                .memberId(member1.getId())
                 .build();
 
         when(replyRepository.findById(anyLong())).thenReturn(Optional.ofNullable(reply));
-        when(replyHeartRepository.findByMemberAndReply(member1, reply)).thenReturn(replyHeart);
+        when(replyHeartRepository.findByMemberIdAndReplyId(member1.getId(), reply.getId())).thenReturn(replyHeart);
         //when
         ReplyHeart result = replyService.likeReply(member1, 2L);
         //then
-        Assertions.assertThat(result.getMember().getNickname()).isEqualTo(member1.getNickname());
+        Assertions.assertThat(result.getMemberId()).isEqualTo(member1.getId());
     }
 
     @Test
@@ -138,12 +135,12 @@ class ReplyServiceTest {
                 .profilePicture(null)
                 .build();
         ReplyHeart replyHeart = ReplyHeart.builder()
-                .reply(reply)
-                .member(member1)
+                .replyId(reply.getId())
+                .memberId(member1.getId())
                 .build();
 
         when(replyRepository.findById(anyLong())).thenReturn(Optional.ofNullable(reply));
-        when(replyHeartRepository.findByMemberAndReply(member1, reply)).thenReturn(replyHeart);
+        when(replyHeartRepository.findByMemberIdAndReplyId(member1.getId(), reply.getId())).thenReturn(replyHeart);
         //when
         replyService.cancelLikeReply(2L, member1);
         //then

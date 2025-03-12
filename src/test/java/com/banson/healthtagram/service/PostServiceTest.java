@@ -3,12 +3,14 @@ package com.banson.healthtagram.service;
 import com.banson.healthtagram.dto.PostRequestDto;
 import com.banson.healthtagram.dto.PostResponseDto;
 import com.banson.healthtagram.entity.Member;
-import com.banson.healthtagram.entity.Post;
-import com.banson.healthtagram.entity.PostHeart;
+import com.banson.healthtagram.entity.es.Tag;
+import com.banson.healthtagram.entity.mongodb.Post;
+import com.banson.healthtagram.entity.mongodb.PostHeart;
 import com.banson.healthtagram.entity.PostImage;
-import com.banson.healthtagram.repository.PostHeartRepository;
-import com.banson.healthtagram.repository.PostImageRepository;
-import com.banson.healthtagram.repository.PostRepository;
+import com.banson.healthtagram.repository.mongoRepository.PostHeartRepository;
+import com.banson.healthtagram.repository.jpa.PostImageRepository;
+import com.banson.healthtagram.repository.mongoRepository.PostRepository;
+import com.banson.healthtagram.repository.elasticsearch.TagRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,8 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,9 +37,9 @@ class PostServiceTest {
     @Mock
     PostImageRepository postImageRepository;
     @Mock
-    MemberService memberService;
-    @Mock
     PostHeartRepository postHeartRepository;
+    @Mock
+    TagRepository tagRepository;
     @InjectMocks
     PostService postService;
 
@@ -57,12 +58,16 @@ class PostServiceTest {
                 .build();
         PostRequestDto postRequestDto = PostRequestDto.builder()
                 .content("content")
-                .tag("#dd#aa")
+                .tagList(List.of("aa", "bb"))
+                .build();
+        Tag tag = Tag.builder()
+                .postId(0L)
+                .tag(List.of("aa", "bb"))
+                .postId(0L)
                 .build();
         Post post = Post.builder()
                 .content("content")
                 .nickname("banson1")
-                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
                 .build();
@@ -71,13 +76,14 @@ class PostServiceTest {
                 .storedFileName("filePath123456")
                 .originalFileName("filePath").build();
         when(postRepository.save(any())).thenReturn(post);
-        when(memberService.findByNickname(any())).thenReturn(member1);
         when(postImageRepository.save(any())).thenReturn(postImage);
+        when(tagRepository.save(any())).thenReturn(tag);
         //when
         PostResponseDto savedPost = postService.savePost(postRequestDto, Arrays.asList(multipartFile), member1);
         //then
         Assertions.assertThat(savedPost.getNickname()).isEqualTo(post.getNickname());
-        Assertions.assertThat(savedPost.getTagList()).isEqualTo(Arrays.asList(post.getTag().replaceAll("#", " ").trim().split(" ")));
+        Assertions.assertThat(savedPost.getContent()).isEqualTo(post.getContent());
+        Assertions.assertThat(savedPost.getTagList()).isEqualTo(tag.getTag());
     }
 
     @Test
@@ -85,6 +91,7 @@ class PostServiceTest {
     void findPostInMember() {
         //given
         Member member1 = Member.builder()
+                .id(0L)
                 .name("정승현1")
                 .email("wjdtmdgus313@naver.com1")
                 .nickname("banson1")
@@ -92,6 +99,7 @@ class PostServiceTest {
                 .profilePicture(null)
                 .build();
         Member member2 = Member.builder()
+                .id(1L)
                 .name("정승현2")
                 .email("wjdtmdgus313@naver.com2")
                 .nickname("banson2")
@@ -99,24 +107,29 @@ class PostServiceTest {
                 .profilePicture(null)
                 .build();
         Post post = Post.builder()
+                .id(0L)
                 .content("content")
                 .nickname("banson1")
-                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
-                .member(member1)
                 .build();
         PostHeart postHeart = PostHeart.builder()
-                .id(1L)
-                .member(member1)
-                .post(post)
+                .id("1L")
+                .memberId(member1.getId())
+                .postId(post.getId())
+                .build();
+        Tag tag = Tag.builder()
+                .postId(0L)
+                .tag(List.of("aa", "bb"))
+                .postId(0L)
                 .build();
         List<Post> postList = Arrays.asList(post);
         List<PostHeart> postHeartList = Arrays.asList(postHeart);
         List<Member> memberList = Arrays.asList(member1, member2);
 
-        when(postRepository.findByIdLessThanAndMemberIn(any(), any(), any())).thenReturn(postList);
-        when(postHeartRepository.findByMemberAndPostIn(member1, Arrays.asList(post))).thenReturn(postHeartList);
+        when(postRepository.findByIdLessThanAndNicknameIn(any(), any(), any())).thenReturn(postList);
+        when(tagRepository.findByPostId(any())).thenReturn(Optional.ofNullable(tag));
+        when(postHeartRepository.findByMemberIdAndPostIdIn(member1.getId(), Arrays.asList(post.getId()))).thenReturn(postHeartList);
         //when
         List<PostResponseDto> post1 = postService.findPostInMember(50L, member1, memberList, pageable);
         List<PostResponseDto> post2 = postService.findPostInMember(50L, member2, memberList, pageable);
@@ -141,10 +154,8 @@ class PostServiceTest {
                 .id(1L)
                 .content("content")
                 .nickname("banson1")
-                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
-                .member(member1)
                 .build();
 
         when(postRepository.findById(1L)).thenReturn(Optional.ofNullable(post));
@@ -169,10 +180,8 @@ class PostServiceTest {
                 .id(1L)
                 .content("content")
                 .nickname("banson1")
-                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
-                .member(member1)
                 .build();
 
         when(postRepository.findByNickname(post.getNickname(), pageable)).thenReturn(Arrays.asList(post));
@@ -197,18 +206,17 @@ class PostServiceTest {
                 .id(1L)
                 .content("content")
                 .nickname("banson1")
-                .tag("#dd#aa")
+//                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
-                .member(member1)
                 .build();
         PostHeart postHeart = PostHeart.builder()
-                .id(1L)
-                .member(member1)
-                .post(post)
+                .id("1L")
+                .memberId(member1.getId())
+                .postId(post.getId())
                 .build();
 
-        when(postHeartRepository.findByMemberAndPost(any(), any())).thenReturn(null);
+        when(postHeartRepository.findByMemberIdAndPostId(any(), any())).thenReturn(null);
         when(postRepository.findById(anyLong())).thenReturn(Optional.ofNullable(post));
         //when
         postService.likePost(1L, member1);
@@ -230,18 +238,17 @@ class PostServiceTest {
                 .id(1L)
                 .content("content")
                 .nickname("banson1")
-                .tag("#dd#aa")
+//                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
-                .member(member1)
                 .build();
         PostHeart postHeart = PostHeart.builder()
-                .id(1L)
-                .member(member1)
-                .post(post)
+                .id("1L")
+                .memberId(member1.getId())
+                .postId(post.getId())
                 .build();
 
-        when(postHeartRepository.findByMemberAndPost(any(), any())).thenReturn(null);
+        when(postHeartRepository.findByMemberIdAndPostId(any(), any())).thenReturn(null);
         when(postRepository.findById(anyLong())).thenReturn(Optional.ofNullable(post));
         //when
         postService.cancelLikePost(1L, member1);
@@ -260,30 +267,33 @@ class PostServiceTest {
                 .profilePicture(null)
                 .build();
         Post post = Post.builder()
+                .id(0L)
                 .content("content")
                 .nickname("banson1")
-                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
-                .member(member1)
                 .build();
+        Tag tag = Tag.builder()
+                .id("0L")
+                .tag(List.of("aa", "bb"))
+                .postId(0L).build();
         PostHeart postHeart = PostHeart.builder()
-                .id(1L)
-                .member(member1)
-                .post(post)
+                .id("1L")
+                .memberId(member1.getId())
+                .postId(post.getId())
                 .build();
         List<Post> postList = Arrays.asList(post);
         List<PostHeart> postHeartList = Arrays.asList(postHeart);
 
-        when(postRepository.findByIdLessThanAndTagContaining(40L, "dd", pageable)).thenReturn(postList);
-        when(postHeartRepository.findByMemberAndPostIn(any(), any())).thenReturn(postHeartList);
+        when(postRepository.findByIdIn(anyList(), any())).thenReturn(postList);
+        when(postHeartRepository.findByMemberIdAndPostIdIn(any(), any())).thenReturn(postHeartList);
+        when(tagRepository.findByTagAndPostIdLessThan(any(), any(), any())).thenReturn(List.of(tag));
+        when(tagRepository.findByPostId(any())).thenReturn(Optional.of(tag));
         //when
-        List<PostResponseDto> post1 = postService.tagSearching("dd", 40L, member1, pageable);
-        List<PostResponseDto> post2 = postService.tagSearching("cc", 40L, member1, pageable);
+        List<PostResponseDto> post1 = postService.tagSearching("aa", 40L, member1, pageable);
         //then
         Assertions.assertThat(post1.get(0).getNickname()).isEqualTo(member1.getNickname());
         Assertions.assertThat(post1.get(0).isLikeState()).isEqualTo(true);
-        Assertions.assertThat(post2).isEmpty();
     }
 
     static Pageable pageable = new Pageable() {

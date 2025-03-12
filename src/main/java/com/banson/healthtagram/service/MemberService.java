@@ -4,21 +4,23 @@ import com.banson.healthtagram.dto.*;
 import com.banson.healthtagram.entity.Follow;
 import com.banson.healthtagram.entity.Member;
 import com.banson.healthtagram.jwt.JwtTokenProvider;
-import com.banson.healthtagram.repository.FollowRepository;
-import com.banson.healthtagram.repository.MemberRepository;
+import com.banson.healthtagram.repository.jpa.FollowRepository;
+import com.banson.healthtagram.repository.jpa.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.Principal;
+import java.sql.PreparedStatement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,9 +35,10 @@ public class MemberService {
     private String filePath;
 
     private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final FollowRepository followRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     public Member findByNickname(String nickname) {
         return memberRepository.findByNickname(nickname);
@@ -88,8 +91,8 @@ public class MemberService {
     }
 
     @Transactional
-    public void cancelAccount(Principal principal) {
-        memberRepository.deleteByEmail(principal.getName());
+    public void cancelAccount(Member member) {
+        memberRepository.deleteByEmail(member.getName());
     }
 
     public SearchPageResponseDto search(String search, Pageable pageable, Member me) {
@@ -127,20 +130,23 @@ public class MemberService {
         return searchPageDto;
     }
 
-    public void insertData() {
-        List<Member> memberList = new ArrayList<>();
+    
+    public void insertData(List<Member> members) {
+        String sql = "INSERT INTO MEMBER (Id, email, password, name, nickname, profile_picture, created_at) " +
+                " VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+        log.info("db넣기 시작 {}", LocalDateTime.now());
 
-        for (int i = 0; i < 30; i++) {
-            Member member = Member.builder()
-                    .email("wjdtmdgus313@naver.com" + i)
-                    .password(passwordEncoder.encode("1234"))
-                    .name("정승현"+i)
-                    .nickname("banson"+i)
-                    .profilePicture("acacacacacac")
-                    .build();
-            memberList.add(member);
-        }
-
-        memberRepository.saveAll(memberList);
+        jdbcTemplate.batchUpdate(sql,
+                members,
+                members.size(),
+                (PreparedStatement ps, Member member) -> {
+                   ps.setLong(1, member.getId());
+                   ps.setString(2, member.getEmail());
+                   ps.setString(3, member.getPassword());
+                   ps.setString(4, member.getName());
+                   ps.setString(5, member.getNickname());
+                   ps.setString(6, member.getProfilePicture());
+                });
+        log.info("db 넣기 끝 {}", LocalDateTime.now());
     }
 }

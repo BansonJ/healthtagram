@@ -1,11 +1,12 @@
 package com.banson.healthtagram.repository;
 
-import com.banson.healthtagram.entity.Post;
-import com.banson.healthtagram.entity.Reply;
+import com.banson.healthtagram.entity.mongodb.Post;
+import com.banson.healthtagram.entity.mongodb.Reply;
+import com.banson.healthtagram.repository.mongoRepository.ReplyRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
@@ -13,9 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-@DataJpaTest
+@DataMongoTest
 class ReplyRepositoryTest {
     @Autowired
     ReplyRepository replyRepository;
@@ -24,22 +23,23 @@ class ReplyRepositoryTest {
     void findByPostAndIdLessThan() {
         //given
         Post post1 = Post.builder()
+                .id(0L)
                 .content("content")
                 .nickname("banson1")
-                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
                 .build();
         Reply reply1 = Reply.builder()
+                .id(0L)
                 .reply("reply1")
                 .replyDate(LocalDateTime.now())
                 .heartCount(0L)
                 .nickname("banson1")
-                .post(post1)
+                .postId(post1.getId())
                 .build();
         replyRepository.save(reply1);
         //when
-        List<Reply> byPostAndIdLessThan = replyRepository.findByPostAndIdLessThan(post1, 5L, pageable);
+        List<Reply> byPostAndIdLessThan = replyRepository.findByPostIdAndIdLessThan(post1.getId(), 5L, pageable);
         //then
         Assertions.assertThat(byPostAndIdLessThan.get(0).getReply()).isEqualTo(reply1.getReply());
     }

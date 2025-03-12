@@ -3,7 +3,7 @@ package com.banson.healthtagram.service;
 import com.banson.healthtagram.dto.SearchResponseDto;
 import com.banson.healthtagram.entity.Follow;
 import com.banson.healthtagram.entity.Member;
-import com.banson.healthtagram.repository.FollowRepository;
+import com.banson.healthtagram.repository.jpa.FollowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

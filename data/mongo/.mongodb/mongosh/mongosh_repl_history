@@ -1,0 +1,11 @@
+exit
+db.getUsers();
+use admin;
+db.test.find()
+select * from config limit 4
+select * from config limit 4;
+db.config.find()
+show databases;
+show collections;
+;
+show collections

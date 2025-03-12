@@ -1,20 +1,23 @@
 package com.banson.healthtagram.repository;
 
 import com.banson.healthtagram.entity.Member;
-import com.banson.healthtagram.entity.Post;
-import com.banson.healthtagram.entity.PostHeart;
+import com.banson.healthtagram.entity.mongodb.Post;
+import com.banson.healthtagram.entity.mongodb.PostHeart;
+import com.banson.healthtagram.repository.mongoRepository.PostHeartRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-@DataJpaTest
+@DataMongoTest
+@ExtendWith(SpringExtension.class)
 class PostHeartRepositoryTest {
     @Autowired
     PostHeartRepository postHeartRepository;
@@ -25,6 +28,7 @@ class PostHeartRepositoryTest {
     @BeforeEach
     void setup() {
         member1 = Member.builder()
+                .id(1L)
                 .name("정승현1")
                 .email("wjdtmdgus313@naver.com1")
                 .nickname("banson1")
@@ -32,34 +36,39 @@ class PostHeartRepositoryTest {
                 .profilePicture(null)
                 .build();
         post1 = Post.builder()
+                .id(1L)
                 .content("content")
                 .nickname("banson1")
-                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
                 .build();
         PostHeart postHeart = PostHeart.builder()
-                .post(post1)
-                .member(member1)
+                .postId(post1.getId())
+                .memberId(member1.getId())
                 .build();
 
         postHeartRepository.save(postHeart);
+    }
+
+    @AfterEach
+    void after() {
+        postHeartRepository.deleteAll();
     }
 
     @Test
     void findByMemberAndPostIn() {
         //given
         //when
-        List<PostHeart> byMemberAndPostIn = postHeartRepository.findByMemberAndPostIn(member1, Arrays.asList(post1));
+        List<PostHeart> byMemberAndPostIn = postHeartRepository.findByMemberIdAndPostIdIn(member1.getId(), Arrays.asList(post1.getId()));
         //then
-        Assertions.assertThat(byMemberAndPostIn.get(0).getPost().getId()).isEqualTo(post1.getId());
+        Assertions.assertThat(byMemberAndPostIn.get(0).getPostId()).isEqualTo(post1.getId());
     }
 
     @Test
     void deleteByPostAndMember() {
         //given
         //when
-        postHeartRepository.deleteByPostAndMember(post1, member1);
+        postHeartRepository.deleteByPostIdAndMemberId(post1.getId(), member1.getId());
         List<PostHeart> all = postHeartRepository.findAll();
         //then
         Assertions.assertThat(all).isEmpty();
@@ -69,8 +78,8 @@ class PostHeartRepositoryTest {
     void findByMemberAndPost() {
         //given
         //when
-        PostHeart byMemberAndPost = postHeartRepository.findByMemberAndPost(member1, post1);
+        PostHeart byMemberAndPost = postHeartRepository.findByMemberIdAndPostId(member1.getId(), post1.getId());
         //then
-        Assertions.assertThat(byMemberAndPost.getPost().getId()).isEqualTo(post1.getId());
+        Assertions.assertThat(byMemberAndPost.getPostId()).isEqualTo(post1.getId());
     }
 }

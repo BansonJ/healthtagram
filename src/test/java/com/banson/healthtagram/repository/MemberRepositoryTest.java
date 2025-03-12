@@ -1,7 +1,7 @@
 package com.banson.healthtagram.repository;
 
-import com.banson.healthtagram.entity.Follow;
 import com.banson.healthtagram.entity.Member;
+import com.banson.healthtagram.repository.jpa.MemberRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 class MemberRepositoryTest {

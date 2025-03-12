@@ -1,10 +1,12 @@
 package com.banson.healthtagram.service;
 
+import com.banson.healthtagram.entity.mongodb.Reply;
+import com.banson.healthtagram.entity.mongodb.ReplyHeart;
 import com.banson.healthtagram.dto.ReplyRequestDto;
 import com.banson.healthtagram.dto.ReplyResponseDto;
 import com.banson.healthtagram.entity.*;
-import com.banson.healthtagram.repository.ReplyHeartRepository;
-import com.banson.healthtagram.repository.ReplyRepository;
+import com.banson.healthtagram.repository.mongoRepository.ReplyHeartRepository;
+import com.banson.healthtagram.repository.mongoRepository.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,19 +19,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReplyService {
 
-    private final PostService postService;
     private final ReplyRepository replyRepository;
     private final ReplyHeartRepository replyHeartRepository;
 
     @Transactional
     public Reply replyUp(Long postId, ReplyRequestDto replyRequestDto, String nickname) {
-        Post post = postService.findById(postId);
         Reply reply = Reply.builder()
                 .reply(replyRequestDto.getReply())
                 .heartCount(0L)
                 .nickname(nickname)
+                .postId(postId)
                 .build();
-        reply.updatePost(post);
 
         return replyRepository.save(reply);
     }
@@ -40,8 +40,7 @@ public class ReplyService {
     }
 
     public List<ReplyResponseDto> findReply(Long postId, Long lastReplyId, Pageable pageable) {
-        Post post = postService.findById(postId);
-        List<Reply> replyList = replyRepository.findByPostAndIdLessThan(post, lastReplyId, pageable);
+        List<Reply> replyList = replyRepository.findByPostIdAndIdLessThan(postId, lastReplyId, pageable);
         
         List<ReplyResponseDto> replyResponseDtoList = new ArrayList<>();
         for (Reply reply : replyList) {
@@ -61,16 +60,17 @@ public class ReplyService {
     @Transactional
     public ReplyHeart likeReply(Member member, Long replyId) {
         Reply reply = replyRepository.findById(replyId).orElseThrow();
-        ReplyHeart exist = replyHeartRepository.findByMemberAndReply(member, reply);
+        ReplyHeart exist = replyHeartRepository.findByMemberIdAndReplyId(member.getId(), replyId);
         if (exist != null) {
             return exist;
         }
 
         reply.plusHeartCount();
+        replyRepository.save(reply);
 
         ReplyHeart replyHeart = ReplyHeart.builder()
-                .reply(reply)
-                .member(member)
+                .replyId(replyId)
+                .memberId(member.getId())
                 .build();
         ReplyHeart saved = replyHeartRepository.save(replyHeart);
         return saved;
@@ -79,10 +79,11 @@ public class ReplyService {
     @Transactional
     public void cancelLikeReply(Long replyId, Member member) {
         Reply reply = replyRepository.findById(replyId).orElseThrow();
-        ReplyHeart exist = replyHeartRepository.findByMemberAndReply(member, reply);
+        ReplyHeart exist = replyHeartRepository.findByMemberIdAndReplyId(member.getId(), replyId);
         if (!(exist == null)) {
             reply.minusHeartCount();
-            replyHeartRepository.deleteByReplyAndMember(reply, member);
+            replyRepository.save(reply);
+            replyHeartRepository.deleteByReplyIdAndMemberId(replyId, member.getId());
         }
     }
 }

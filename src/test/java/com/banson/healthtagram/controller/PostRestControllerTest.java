@@ -55,7 +55,7 @@ class PostRestControllerTest {
         //given
         PostRequestDto postRequestDto = PostRequestDto.builder()
                 .content("content")
-                .tag("ss")
+                .tagList(List.of("aa", "bb"))
                 .build();
         PostResponseDto postResponseDto = PostResponseDto.builder()
                 .postId(1L)

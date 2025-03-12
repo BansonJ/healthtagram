@@ -5,7 +5,7 @@ import com.banson.healthtagram.dto.SearchPageResponseDto;
 import com.banson.healthtagram.dto.SearchResponseDto;
 import com.banson.healthtagram.dto.SignupRequestDto;
 import com.banson.healthtagram.entity.Member;
-import com.banson.healthtagram.entity.Post;
+import com.banson.healthtagram.entity.mongodb.Post;
 import com.banson.healthtagram.jwt.JwtTokenProvider;
 import com.banson.healthtagram.service.FollowService;
 import com.banson.healthtagram.service.MemberService;
@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -41,6 +42,8 @@ class MemberRestControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+    @MockBean
+    BCryptPasswordEncoder passwordEncoder;
     @MockBean
     private MemberService memberService;
     @MockBean

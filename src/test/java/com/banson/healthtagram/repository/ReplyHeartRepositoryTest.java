@@ -1,22 +1,21 @@
 package com.banson.healthtagram.repository;
 
 import com.banson.healthtagram.entity.Member;
-import com.banson.healthtagram.entity.Post;
-import com.banson.healthtagram.entity.Reply;
-import com.banson.healthtagram.entity.ReplyHeart;
+import com.banson.healthtagram.entity.mongodb.Post;
+import com.banson.healthtagram.entity.mongodb.Reply;
+import com.banson.healthtagram.entity.mongodb.ReplyHeart;
+import com.banson.healthtagram.repository.mongoRepository.ReplyHeartRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-@DataJpaTest
+@DataMongoTest
 class ReplyHeartRepositoryTest {
 
     @Autowired
@@ -39,7 +38,6 @@ class ReplyHeartRepositoryTest {
         post1 = Post.builder()
                 .content("content")
                 .nickname("banson1")
-                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
                 .build();
@@ -48,12 +46,12 @@ class ReplyHeartRepositoryTest {
                 .replyDate(LocalDateTime.now())
                 .heartCount(0L)
                 .nickname("banson1")
-                .post(post1)
+                .postId(post1.getId())
                 .build();
 
         replyHeart = ReplyHeart.builder()
-                .member(member1)
-                .reply(reply1)
+                .memberId(member1.getId())
+                .replyId(reply1.getId())
                 .build();
 
         replyHeartRepository.save(replyHeart);
@@ -63,16 +61,16 @@ class ReplyHeartRepositoryTest {
     void findByMemberAndReply() {
         //given
         //when
-        ReplyHeart byMemberAndReply = replyHeartRepository.findByMemberAndReply(member1, reply1);
+        ReplyHeart byMemberAndReply = replyHeartRepository.findByMemberIdAndReplyId(member1.getId(), reply1.getId());
         //then
-        Assertions.assertThat(byMemberAndReply.getReply().getReply()).isEqualTo(reply1.getReply());
+        Assertions.assertThat(byMemberAndReply.getReplyId()).isEqualTo(reply1.getId());
     }
 
     @Test
     void deleteByReplyAndMember() {
         //given
         //when
-        replyHeartRepository.deleteByReplyAndMember(reply1,  member1);
+        replyHeartRepository.deleteByReplyIdAndMemberId(reply1.getId(), member1.getId());
         List<ReplyHeart> all = replyHeartRepository.findAll();
         //then
         Assertions.assertThat(all).isEmpty();

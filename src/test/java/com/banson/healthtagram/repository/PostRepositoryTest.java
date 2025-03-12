@@ -1,31 +1,29 @@
 package com.banson.healthtagram.repository;
 
 import com.banson.healthtagram.entity.Member;
-import com.banson.healthtagram.entity.Post;
-import com.banson.healthtagram.entity.PostHeart;
+import com.banson.healthtagram.entity.mongodb.Post;
+import com.banson.healthtagram.repository.mongoRepository.PostRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.parameters.P;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-@DataJpaTest
+@DataMongoTest
 class PostRepositoryTest {
 
     @Autowired
     PostRepository postRepository;
 
-    public static Member member1;
-    public static Post post1;
-    public static Post post2;
+    public Member member1;
+    public Post post1;
+    public Post post2;
 
     @BeforeEach
     void setup() {
@@ -37,31 +35,34 @@ class PostRepositoryTest {
                 .profilePicture(null)
                 .build();
         post1 = Post.builder()
+                .id(0L)
                 .content("content")
                 .nickname("banson1")
-                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
-                .member(member1)
                 .build();
         post2 = Post.builder()
+                .id(1L)
                 .content("content2")
                 .nickname("banson1")
-                .tag("#dd#aa")
                 .filePath(Arrays.asList("filePath"))
                 .heartCount(0L)
-                .member(member1)
                 .build();
 
         postRepository.save(post1);
         postRepository.save(post2);
     }
 
+    @AfterEach
+    void setdown() {
+        postRepository.deleteAll();
+    }
+
     @Test
     void findByIdLessThanAndMemberIn() {
         //given
         //when
-        List<Post> byIdLessThanAndMemberIn = postRepository.findByIdLessThanAndMemberIn(post2.getId(), Arrays.asList(member1), pageable);
+        List<Post> byIdLessThanAndMemberIn = postRepository.findByIdLessThanAndNicknameIn(post2.getId(), Arrays.asList(member1.getNickname()), pageable);
         //then
         Assertions.assertThat(byIdLessThanAndMemberIn.get(0).getContent()).isEqualTo(post1.getContent());
         Assertions.assertThat(byIdLessThanAndMemberIn.size()).isEqualTo(1);
@@ -82,10 +83,10 @@ class PostRepositoryTest {
     void findByIdLessThanAndTagContaining() {
         //given
         //when
-        List<Post> byIdLessThanAndTagContaining = postRepository.findByIdLessThanAndTagContaining(2L, "dd", pageable);
+        List<Post> byIdLessThanAndTagContaining = postRepository.findByIdIn(List.of(0L, 1L), pageable);
         //then
-        Assertions.assertThat(byIdLessThanAndTagContaining.size()).isEqualTo(1);
-        Assertions.assertThat(byIdLessThanAndTagContaining.get(0).getContent()).isEqualTo(post1.getContent());
+        //tag에 대한검증
+        Assertions.assertThat(byIdLessThanAndTagContaining.size()).isEqualTo(2);
     }
 
     static Pageable pageable = new Pageable() {

@@ -6,8 +6,8 @@ import com.banson.healthtagram.dto.SignupRequestDto;
 import com.banson.healthtagram.entity.Follow;
 import com.banson.healthtagram.entity.Member;
 import com.banson.healthtagram.jwt.JwtTokenProvider;
-import com.banson.healthtagram.repository.FollowRepository;
-import com.banson.healthtagram.repository.MemberRepository;
+import com.banson.healthtagram.repository.jpa.FollowRepository;
+import com.banson.healthtagram.repository.jpa.MemberRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,7 +36,7 @@ class MemberServiceTest {
     @Mock
     MemberRepository memberRepository;
     @Mock
-    PasswordEncoder passwordEncoder;
+    BCryptPasswordEncoder passwordEncoder;
     @Mock
     JwtTokenProvider jwtTokenProvider;
     @Mock

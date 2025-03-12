@@ -2,11 +2,10 @@ package com.banson.healthtagram.controller;
 
 import com.banson.healthtagram.dto.ReplyRequestDto;
 import com.banson.healthtagram.dto.ReplyResponseDto;
-import com.banson.healthtagram.entity.Reply;
+import com.banson.healthtagram.entity.mongodb.Reply;
 import com.banson.healthtagram.jwt.JwtTokenProvider;
 import com.banson.healthtagram.service.MemberService;
 import com.banson.healthtagram.service.ReplyService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
