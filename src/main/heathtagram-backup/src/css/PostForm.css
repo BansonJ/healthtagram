@@ -1,0 +1,121 @@
+/* 📌 폼 전체 크기 */
+.post-form-container {
+  width: 600px; /* 메인 화면보다 살짝 넓게 */
+  margin: 50px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 📌 게시글 입력칸 크기 & 너비 최적화 */
+.post-content-input {
+  width: calc(100% - 20px); /* 부모 요소 벗어나지 않도록 조정 */
+  height: 120px; /* 적당한 높이 유지 */
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: none; /* 크기 조절 방지 */
+  box-sizing: border-box; /* 내부 패딩 포함하여 크기 조절 */
+}
+
+/* 📌 태그 입력칸 & 버튼 정렬 */
+.tag-input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.tag-input-container input {
+  width: calc(100% - 20px); /* 버튼과 간격 맞추기 */
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box; /* 크기 조절 오류 방지 */
+}
+
+.tag-input-container button {
+  width: 100px;
+  margin-top: 6px;
+  padding: 8px;
+  font-size: 14px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tag-input-container button:hover {
+  background-color: #0056b3;
+}
+
+/* 📌 태그 목록 스타일 */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap; /* 태그가 많아지면 자동 줄 바꿈 */
+  gap: 8px; /* 태그 간격 */
+  margin-top: 8px;
+  align-items: center; /* 태그 높이 균일하게 맞추기 */
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-size: 14px;
+  color: #333;
+  white-space: nowrap; /* 단어가 잘리지 않게 */
+  max-width: 200px; /* 태그가 너무 길어지지 않도록 설정 */
+  overflow: hidden;
+  text-overflow: ellipsis; /* 너무 길면 "..." 표시 */
+}
+
+.tag button {
+  background: none;
+  border: none;
+  margin-left: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  color: red;
+}
+
+/* 📌 게시 버튼 */
+.post-submit-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.post-submit-button:hover {
+  background-color: #218838;
+}
+
+.image-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.image-filename {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

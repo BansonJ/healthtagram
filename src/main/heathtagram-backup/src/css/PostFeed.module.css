@@ -1,0 +1,197 @@
+/* PostFeed.module.css */
+
+/* 전체 레이아웃 */
+.postFeed {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* 왼쪽 사이드바 */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: fixed;
+  left: 20px;
+  top: 100px;
+}
+
+.navLink{
+  text-align: center;
+  background: none;
+  border: none;
+  text-decoration: none;
+  font-size: 16px;
+  color: black;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.2s;
+}
+
+.navLink:hover{
+  background: #f0f0f0;
+  color: #007bff;
+}
+
+/* 게시물 컨테이너 */
+.postsContainer {
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  gap: 20px;
+}
+
+/* 게시물 본문 */
+.postContainer {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+/* 게시물 헤더 (이름과 날짜) */
+.postHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+/* 게시물 본문 */
+.postContent {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+/* 이미지 슬라이더 */
+.imageSlider {
+  position: relative;
+    width: 100%;
+    height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 5px;
+}
+
+.postImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 5px;
+}
+
+/* 슬라이더 컨트롤 */
+.sliderControls {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
+  width: 100%;
+  pointer-events: none;
+}
+
+.prevButton, .nextButton {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 50%;
+  pointer-events: auto;
+  transition: background-color 0.2s;
+}
+
+.prevButton:hover, .nextButton:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.prevButton {
+  left: 5px;
+}
+
+.nextButton {
+  right: 5px;
+}
+
+/* 게시물 푸터 */
+.postFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 3px;
+}
+
+/* 좋아요 버튼 */
+.postLikeButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  width: auto;
+}
+
+.postLikeButton:hover {
+  opacity: 0.7;
+  background: #f0f0f0;
+}
+
+/* 좋아요 개수 */
+.postLikes {
+  font-size: 16px;
+}
+
+/* 태그 */
+.postTags {
+  margin-top: 10px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.postTag {
+  font-size: 14px;
+  color: #555;
+}
+
+.postCommentButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  width: auto;
+  transition: opacity 0.3s;
+  margin-left: 15px;
+}
+
+.postCommentButton:hover {
+  opacity: 0.7;
+  background: #f0f0f0;
+}
+
+.postComments {
+  font-size: 16px;
+}

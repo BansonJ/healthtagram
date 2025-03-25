@@ -1,0 +1,27 @@
+/* Sidebar.css */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: fixed;
+  left: 20px;
+  top: 100px;
+}
+
+.nav-link, .search-button {
+  text-align: center;
+  background: none;
+  border: none;
+  text-decoration: none;
+  font-size: 16px;
+  color: black;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.2s;
+}
+
+.nav-link:hover, .search-button:hover {
+  background: #f0f0f0;
+  color: #007bff;
+}

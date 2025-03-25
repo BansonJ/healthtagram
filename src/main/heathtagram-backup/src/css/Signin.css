@@ -1,0 +1,39 @@
+.login-container {
+  width: 300px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+form div {
+  margin-bottom: 10px;
+}
+
+input {
+  width: 100%;
+  max-width: 280px; /* ✅ 최대 너비 제한 */
+  padding: 8px;
+  margin-top: 5px;
+  box-sizing: border-box; /* ✅ 패딩 포함한 크기 조정 */
+}
+
+button {
+  width: 100%;
+  max-width: 280px; /* ✅ 버튼 크기도 조정 */
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}

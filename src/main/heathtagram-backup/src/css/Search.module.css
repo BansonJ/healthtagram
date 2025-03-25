@@ -1,0 +1,104 @@
+.searchContainer {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.searchForm {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.searchInput {
+  width: 80%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.searchButton {
+  padding: 10px 20px;
+  margin-left: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.searchButton:hover {
+  background-color: #45a049;
+}
+
+.searchResults {
+  margin-top: 20px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 5px;
+}
+
+.searchResultItem:hover {
+  background-color: #f0f0f0;
+}
+
+.searchResultItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px; /* 항목 사이 간격을 더 넓혀서 결과를 더 넓게 표시 */
+  padding: 10px; /* padding을 늘려서 항목의 크기 키우기 */
+  cursor: pointer;
+  height: 60px; /* 항목 높이를 늘려서 좀 더 커지게 만들기 */
+}
+
+.profileInfo {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* 사진과 이름 간격을 조금 더 벌리기 */
+}
+
+.profilePicture {
+  width: 50px; /* 프로필 사진 크기 증가 */
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.nicknameSpan {
+  margin-left: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.nicknameSpan span {
+  font-size: 20px; /* 글씨 크기를 조금 더 키워서 보기 좋게 */
+  color: #333;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+
+.paginationContainer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.loadMoreButton {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+.loadMoreButton:hover {
+  background-color: #45a049;
+}
