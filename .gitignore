@@ -43,3 +43,4 @@ out/
 **/elasticsearch-data/**
 **/grafana-data/**
 **/mysql/**
+**/logs/

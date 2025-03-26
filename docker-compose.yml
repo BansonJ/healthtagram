@@ -68,13 +68,18 @@ services:
     container_name: grafana
     user: "$UID:$GID"
     ports:
-      - "3001:3001"
+      - "3000:3000"
     volumes:
       - ./grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
     networks:
       - healthtagramnetwork
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "8m"
+        max-file: "10"
 
   es:
     build:
