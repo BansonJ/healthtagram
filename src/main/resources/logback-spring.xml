@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+    <timestamp key="ToDay" datePattern="yyyy-MM-dd" />
+
+    <appender name = "INFO" class="ch.qos.logback.core.rolling.RollingFileAppender"> <!-- appender 이름과 형식 -->
+        <file>./logs/info_${ToDay}.log</file> <!-- 저장될 파일 위치와 이름 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">   <!-- rolling방식의 크기와 저장기간 -->
+            <fileNamePattern>
+                ./preLogs/info_%d{yy-MM-dd}_%i.log  <!-- 로그파일이 꽉차거나 기간이 지났을 때 이동할 위치와 이름 -->
+            </fileNamePattern>
+            <maxFileSize>10MB</maxFileSize> <!-- 최대 크기 -->
+            <maxHistory>10</maxHistory> <!-- 최대 저장 기간 일수 -->
+        </rollingPolicy>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">  <!-- 로그 레벨 -->
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>   <!-- 로그 레벨이 맞을 시 기록 남김 -->
+            <onMismatch>DENY</onMismatch>   <!-- 로그 레벨이 다를 시 실행 안함 -->
+        </filter>
+            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder"> <!-- json 형식으로 인코딩 하겠다 -->
+                <providers> <!-- json일 때 붙여줘야 하는듯 -->
+                    <mdc/>
+                    <pattern>
+                        <pattern>
+                            {
+                            "timestamp" : "%d{yyyy-MM-dd HH:mm:ss}",
+                            "message" : "%C:%M:line%line - %msg"
+                            }
+                        </pattern>
+                    </pattern>
+                </providers>
+                <jsonGeneratorDecorator class="net.logstash.logback.decorate.CompositeJsonGeneratorDecorator">
+                    <decorator class="net.logstash.logback.decorate.PrettyPrintingJsonGeneratorDecorator"/> <!-- 이쁜 json 형식 -->
+                </jsonGeneratorDecorator>
+            </encoder>
+    </appender>
+
+    <appender name = "WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./logs/warn_${ToDay}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>
+                ./preLogs/warn_%d{yy-MM-dd}_%i.log
+            </fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <mdc/>
+                <pattern>
+                    <pattern>
+                        {
+                        "timestamp" : "%d{yyyy-MM-dd HH:mm:ss}",
+                        "message" : "%method:line%line - %msg"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+            <jsonGeneratorDecorator class="net.logstash.logback.decorate.CompositeJsonGeneratorDecorator">
+                <decorator class="net.logstash.logback.decorate.PrettyPrintingJsonGeneratorDecorator"/>
+            </jsonGeneratorDecorator>
+        </encoder>
+    </appender>
+
+    <appender name = "ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./logs/error_${ToDay}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>
+                ./preLogs/error_%d{yy-MM-dd}_%i.log
+            </fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <mdc/>
+                <pattern>
+                    <pattern>
+                        {
+                        "timestamp" : "%d{yyyy-MM-dd HH:mm:ss}",
+                        "message" : "%method:line%line - %msg"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+            <jsonGeneratorDecorator class="net.logstash.logback.decorate.CompositeJsonGeneratorDecorator">
+                <decorator class="net.logstash.logback.decorate.PrettyPrintingJsonGeneratorDecorator"/>
+            </jsonGeneratorDecorator>
+        </encoder>
+    </appender>
+
+
+
+
+    <root level="INFO"> <!-- INFO 이상의 레벨은 로그를 찍음 -->
+        <springProfile name="!dev"> <!-- profile이 dev가 아니면 전부 로그를 이렇게 찍음 -->
+            <appender-ref ref="INFO"/>  <!-- 위에서 설정한 appender name을 써주면 적용됨 -->
+            <appender-ref ref="WARN"/>
+            <appender-ref ref="ERROR"/>
+        </springProfile>
+    </root>
+
+</configuration>
