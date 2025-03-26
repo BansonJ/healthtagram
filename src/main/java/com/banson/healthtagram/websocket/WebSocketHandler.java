@@ -1,72 +1,59 @@
 package com.banson.healthtagram.websocket;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-@Slf4j
-@RequiredArgsConstructor
 public class WebSocketHandler extends TextWebSocketHandler {
 
-    private final ObjectMapper objectMapper;
-    private final ChatService chatService;
-    private final RedisTemplate<String, Object> redisTemplate;
-    private Set<WebSocketSession> sessions = new HashSet<>();
+    // 각 방의 WebSocket 연결을 관리하는 Map (방 ID -> WebSocketSession)
+    private static final Map<String, Map<String, WebSocketSession>> roomSessions = new ConcurrentHashMap<>();
+
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        // WebSocket 세션이 연결되었을 때, 방 ID를 URL에서 추출해서 저장합니다.
+        String roomId = getRoomIdFromSession(session);
+        roomSessions.putIfAbsent(roomId, new ConcurrentHashMap<>());
+        roomSessions.get(roomId).put(session.getId(), session);
+        System.out.println("새로운 연결: " + session.getId() + " -> 방: " + roomId);
+    }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        /*
-        {
-            "sender":"정승현",
-            "roomId":"77d5fea8-0662-4d49-891d-c1ee748e4806",
-            "message":"안녕하시오."
+        // 메시지를 받은 후, 해당 방에 연결된 모든 클라이언트에게 메시지를 전달합니다.
+        String roomId = getRoomIdFromSession(session);
+        Map<String, WebSocketSession> sessions = roomSessions.get(roomId);
+
+        if (sessions != null) {
+            // 해당 방에 연결된 모든 클라이언트에게 메시지 전송
+            for (WebSocketSession webSocketSession : sessions.values()) {
+                if (webSocketSession.isOpen()) {
+                    webSocketSession.sendMessage(new TextMessage(message.getPayload()));
+                }
+            }
         }
-        */
-
-        String payload = message.getPayload();
-        log.info("페이로드:{}", payload);
-
-        //payload를 ChatMessage 객체로 만들어주기
-        ChatMessage chatMessage = objectMapper.readValue(payload, ChatMessage.class);
-
-        handlerActions(session, chatMessage);
-    }
-
-    public void handlerActions(WebSocketSession session, ChatMessage chatMessage) {
-        List members = redisTemplate.opsForSet().members(chatMessage.getRoomId()).stream().toList();
-
-        log.info("list: {}", redisTemplate.opsForSet().members(chatMessage.getRoomId()).stream().toList());
-
-        if (!(members.contains(chatMessage.getSender())) && !(sessions.contains(session))) {    //방에 처음 들어왔을때 or 나갔다 들어왔을 때
-            redisTemplate.opsForSet().add(chatMessage.getRoomId(), chatMessage.getSender());
-            sessions.add(session);
-            sendMessage(chatMessage.getSender() + " 님이 입장했습니다.");
-        } else if (members.contains(chatMessage.getSender()) && !(sessions.contains(session))) {    //방에 재입장 했을 때
-            sessions.add(session);
-            sendMessage(chatMessage.getSender() + ": " + chatMessage.getMessage());
-        } else {    //방에 있을 때
-            sendMessage(chatMessage.getSender() +": " + chatMessage.getMessage());
-        }
-    }
-
-    private <T> void sendMessage(T message) {   //채팅방에 입장해 있는 모든 클라이언트에게 메세지 전송
-        sessions.parallelStream()
-                .forEach(session -> chatService.sendMessage(session, message));
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        sessions.remove(session);
+    public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) throws Exception {
+        // 연결 종료 시, 해당 방에서 세션을 제거합니다.
+        String roomId = getRoomIdFromSession(session);
+        Map<String, WebSocketSession> sessions = roomSessions.get(roomId);
+
+        if (sessions != null) {
+            sessions.remove(session.getId());
+            System.out.println("연결 종료: " + session.getId() + " -> 방: " + roomId);
+        }
+    }
+    
+    private String getRoomIdFromSession(WebSocketSession session) {
+        // 예: ws://localhost:8080/chat/room1 형태에서 'room1'을 추출
+        return session.getUri().getPath().split("/")[2];
     }
 }
+

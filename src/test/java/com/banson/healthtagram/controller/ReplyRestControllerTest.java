@@ -2,6 +2,7 @@ package com.banson.healthtagram.controller;
 
 import com.banson.healthtagram.dto.ReplyRequestDto;
 import com.banson.healthtagram.dto.ReplyResponseDto;
+import com.banson.healthtagram.dto.ReplyStateDto;
 import com.banson.healthtagram.entity.mongodb.Reply;
 import com.banson.healthtagram.jwt.JwtTokenProvider;
 import com.banson.healthtagram.service.MemberService;
@@ -49,24 +50,28 @@ class ReplyRestControllerTest {
     @Test
     void reply() throws Exception {
         //given
-        List<ReplyResponseDto> replyResponseDtoList = new ArrayList<>();
-            ReplyResponseDto replyResponseDto = ReplyResponseDto.builder()
+        List<ReplyStateDto> replyList = new ArrayList<>();
+            Reply reply = Reply.builder()
                     .reply("reply")
                     .nickname("banson1")
-                    .replyId(1L)
-                    .createdAt(LocalDateTime.now())
+                    .id(1L)
+                    .replyDate(LocalDateTime.now())
                     .heartCount(1L)
                     .build();
-            replyResponseDtoList.add(replyResponseDto);
+        ReplyStateDto replyStateDto = ReplyStateDto.builder()
+                .state(true)
+                .reply(reply)
+                .build();
+            replyList.add(replyStateDto);
         //when
-        given(replyService.findReply(any(), any(), any())).willReturn(replyResponseDtoList);
+        given(replyService.findReply(any(), any(), any(), any())).willReturn(replyList);
         //then
         mockMvc.perform(get("/api/{postId}/reply", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("lastReplyId", "50")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].reply").value("reply"))
+                .andExpect(jsonPath("$[0].replyList.reply").value("reply"))
                 .andDo(print());
     }
 

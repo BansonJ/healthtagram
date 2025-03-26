@@ -12,7 +12,7 @@ import java.util.Date;
 @Slf4j
 public class JwtTokenProvider {
 
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60;      // 60분
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24;      // 24시간
 
     private String key;
 

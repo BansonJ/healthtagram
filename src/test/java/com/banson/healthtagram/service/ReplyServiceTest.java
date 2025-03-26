@@ -2,6 +2,7 @@ package com.banson.healthtagram.service;
 
 import com.banson.healthtagram.dto.ReplyRequestDto;
 import com.banson.healthtagram.dto.ReplyResponseDto;
+import com.banson.healthtagram.dto.ReplyStateDto;
 import com.banson.healthtagram.entity.Member;
 import com.banson.healthtagram.entity.mongodb.Post;
 import com.banson.healthtagram.entity.mongodb.Reply;
@@ -58,7 +59,7 @@ class ReplyServiceTest {
 
         when(replyRepository.save(any())).thenReturn(reply);
         //when
-        Reply replyUp = replyService.replyUp(post.getId(), replyRequestDto, reply.getNickname());
+        Reply replyUp = replyService.replyUp(post.getId(), reply.getReply(), reply.getNickname());
         //then
         Assertions.assertThat(replyUp.getReply()).isEqualTo(reply.getReply());
     }
@@ -82,9 +83,9 @@ class ReplyServiceTest {
 
         when(replyRepository.findByPostIdAndIdLessThan(any(), anyLong(), any())).thenReturn(Arrays.asList(reply));
         //when
-        List<ReplyResponseDto> replyList = replyService.findReply(post.getId(), 20L, pageable);
+        List<ReplyStateDto> replyList = replyService.findReply(any(), post.getId(), 20L, pageable);
         //then
-        Assertions.assertThat(replyList.get(0).getReply()).isEqualTo(reply.getReply());
+        Assertions.assertThat(replyList.get(0).getReply().getReply()).isEqualTo(reply.getReply());
     }
 
     @Test

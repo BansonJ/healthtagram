@@ -111,9 +111,12 @@ public class MemberService {
                 }
             }
 
+            String profileFileUrl = "http://localhost:8080/api/study/healthtagramImage/" + new File(member1.getProfilePicture()).getName();
+            log.info(profileFileUrl);
+
             SearchResponseDto searchDto = SearchResponseDto.builder()
                     .nickname(member1.getNickname())
-                    .profilePicture(member1.getProfilePicture())
+                    .profilePicture(profileFileUrl)
                     .state(state)
                     .build();
             searchDtoList.add(searchDto);
@@ -121,10 +124,6 @@ public class MemberService {
 
         SearchPageResponseDto searchPageDto = SearchPageResponseDto.builder()
                 .searchDto(searchDtoList)
-                .pageNo(member.getPageable().getPageNumber())
-                .pageSize(member.getPageable().getPageSize())
-                .totalPages(member.getTotalPages())
-                .totalElements(member.getTotalElements())
                 .build();
 
         return searchPageDto;

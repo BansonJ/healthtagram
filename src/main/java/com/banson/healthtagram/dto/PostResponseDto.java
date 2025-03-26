@@ -15,7 +15,7 @@ import java.util.List;
 public class PostResponseDto {
     private String content;
     private List<String> filePath;
-    private List<String> tagList;
+    private String tagList;
     private String nickname;
     private Long heartCount;
     private LocalDateTime createdAt;

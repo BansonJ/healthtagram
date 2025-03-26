@@ -158,7 +158,7 @@ class MemberServiceTest {
                 .profilePicture(null)
                 .build();
 
-        Page<Member> members = new Page<Member>() {
+        Page<Member> members = new Page<>() {
             @Override
             public int getTotalPages() {
                 return 1;
@@ -201,7 +201,7 @@ class MemberServiceTest {
 
             @Override
             public Sort getSort() {
-                return Sort.by(Sort.Direction.DESC, "name");
+                return Sort.by(Sort.Direction.DESC, "nickname");
             }
 
             @Override

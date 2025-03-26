@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(collection = "post")
-@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
@@ -52,4 +51,7 @@ public class Post {
         this.heartCount--;
     }
 
+    public void setFilePath(List<String> filePathList) {
+        this.filePath = filePathList;
+    }
 }

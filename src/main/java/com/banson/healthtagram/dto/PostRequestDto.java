@@ -16,5 +16,5 @@ import java.util.List;
 public class PostRequestDto {
     @NotEmpty
     private String content;
-    private List<String> tagList;
+    private String tagList;
 }

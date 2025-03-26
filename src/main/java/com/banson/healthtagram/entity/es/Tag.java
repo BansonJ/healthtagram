@@ -24,5 +24,6 @@ public class Tag {
     @Field(type = FieldType.Long)
     private Long postId;
 
-    private List<String> tag;
+    @Field(type = FieldType.Text, analyzer = "standard")
+    private String tag;
 }

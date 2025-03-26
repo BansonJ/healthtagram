@@ -58,11 +58,11 @@ class PostServiceTest {
                 .build();
         PostRequestDto postRequestDto = PostRequestDto.builder()
                 .content("content")
-                .tagList(List.of("aa", "bb"))
+                .tagList("aa, bb")
                 .build();
         Tag tag = Tag.builder()
                 .postId(0L)
-                .tag(List.of("aa", "bb"))
+                .tag("aa, bb")
                 .postId(0L)
                 .build();
         Post post = Post.builder()
@@ -120,7 +120,7 @@ class PostServiceTest {
                 .build();
         Tag tag = Tag.builder()
                 .postId(0L)
-                .tag(List.of("aa", "bb"))
+                .tag("aa, bb")
                 .postId(0L)
                 .build();
         List<Post> postList = Arrays.asList(post);
@@ -186,7 +186,7 @@ class PostServiceTest {
 
         when(postRepository.findByNickname(post.getNickname(), pageable)).thenReturn(Arrays.asList(post));
         //when
-        List<Post> post1 = postService.findByNickname(post.getNickname(), pageable);
+        List<Post> post1 = postService.findPostInMember(member1.getNickname(), Long.MAX_VALUE, pageable);
         //then
         Assertions.assertThat(post1.get(0)).isEqualTo(post);
     }
@@ -275,7 +275,7 @@ class PostServiceTest {
                 .build();
         Tag tag = Tag.builder()
                 .id("0L")
-                .tag(List.of("aa", "bb"))
+                .tag("aa, bb")
                 .postId(0L).build();
         PostHeart postHeart = PostHeart.builder()
                 .id("1L")

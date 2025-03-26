@@ -37,4 +37,9 @@ out/
 .vscode/
 
 ### myself ###
-.yml
+**/src/main/resources/*.yml
+**/src/main/resources/*.json
+**/data/**
+**/elasticsearch-data/**
+**/grafana-data/**
+**/mysql/**

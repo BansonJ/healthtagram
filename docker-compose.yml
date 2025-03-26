@@ -20,7 +20,6 @@ services:
 
   healthtagram:
     container_name: healthtagramApp
-    restart: on-failure
     build:
       context: ./
       dockerfile: Dockerfile
@@ -46,8 +45,6 @@ services:
     image: mongo:latest
     container_name: mongodb
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
       MONGO_INITDB_DATABASE: healthtagram
     ports:
       - "27017:27017"
@@ -71,7 +68,7 @@ services:
     container_name: grafana
     user: "$UID:$GID"
     ports:
-      - "3000:3000"
+      - "3001:3001"
     volumes:
       - ./grafana-data:/var/lib/grafana
     depends_on:
@@ -80,11 +77,13 @@ services:
       - healthtagramnetwork
 
   es:
+    build:
+      context: ./elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
     container_name: healthElastic
     environment:
       - node.name=single-node
-      - cluster.name=backtony
+      - cluster.name=healthEsCluster
       - discovery.type=single-node
       - xpack.security.enabled=false
       - xpack.security.http.ssl.enabled=false
@@ -92,6 +91,8 @@ services:
     ports:
       - 9200:9200
       - 9300:9300
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
     networks:
       - healthtagramnetwork
 
@@ -108,6 +109,10 @@ services:
       - es
     networks:
       - healthtagramnetwork
+
+volumes:
+  elasticsearch-data:  # ✅ 볼륨 정의 추가
+    driver: local
 
 networks:
   healthtagramnetwork:

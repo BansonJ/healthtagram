@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -105,6 +106,7 @@ class MemberRestControllerTest {
                 .build();
         //when
         given(memberService.signin(loginRequest)).willReturn("token");
+        given(memberService.findByEmail(any())).willReturn(member);
         //then
         mockMvc.perform(post("/api/signin")
                         .with(csrf())
@@ -116,7 +118,7 @@ class MemberRestControllerTest {
 
     @Test
     @DisplayName("멤버페이지 불러오기 성공")
-    @WithMockUser
+    @WithMockUser(username = "banson1")  // 테스트할 사용자 설정
     void memberPage() throws Exception {
         //given
         String nickname = "banson1";
@@ -128,16 +130,23 @@ class MemberRestControllerTest {
                 .password("1234")
                 .profilePicture(null)
                 .build();
+        Post post = Post.builder()
+                .id(1L)
+                .nickname("banson1")
+                .filePath(List.of("afdsf"))
+                .content("adfsasfa")
+                .heartCount(0L)
+                .build();
         List<Post> postList = new ArrayList<>();
-        Pageable pageable = null;
+        postList.add(post);
         //when
-        given(memberService.findByNickname(nickname)).willReturn(member);
-        given(postService.findByNickname(any(), any())).willReturn(postList);
+        given(memberService.findByNickname(any())).willReturn(member);
+        given(postService.findPostInMember(any(), anyLong(), any())).willReturn(postList);
         given(followService.followState(any(),any())).willReturn("me");
         //then
         mockMvc.perform(get("/api/memberPage/{nickname}", nickname)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(pageable))
+                        .param("lastPostId", String.valueOf(50))
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nickname").value("banson1"))
@@ -159,10 +168,6 @@ class MemberRestControllerTest {
         searchDtoList.add(searchResponseDto);
         SearchPageResponseDto searchPageDto = SearchPageResponseDto.builder()
                 .searchDto(searchDtoList)
-                .pageNo(1)
-                .pageSize(1)
-                .totalPages(1)
-                .totalElements(1)
                 .build();
         //when
         given(memberService.search(any(), any(), any())).willReturn(searchPageDto);

@@ -51,4 +51,8 @@ public class Member {
 
     @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followerList;
+
+    public void setProfilePicture(String replyMemberProfile) {
+        this.profilePicture = replyMemberProfile;
+    }
 }

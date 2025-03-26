@@ -15,7 +15,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@EntityListeners(AuditingEntityListener.class)
 public class Reply {
     @Transient // 영속성 필드 제외
     public static final String SEQUENCE_NAME = "reply_sequence";
@@ -39,13 +38,5 @@ public class Reply {
 
     public void setId(Long id){
         this.id = id;
-    }
-
-    public void plusHeartCount() {
-        this.heartCount++;
-    }
-
-    public void minusHeartCount() {
-        this.heartCount--;
     }
 }

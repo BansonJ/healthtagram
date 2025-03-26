@@ -51,7 +51,7 @@ class FollowingRestControllerTest {
                 .profilePicture("abcd.png")
                 .build());
         //when
-        given(followService.followingList(any())).willReturn(followingList);
+        given(followService.followingList(any(), any())).willReturn(followingList);
         //then
         mockMvc.perform(get("/api/followingList")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -72,7 +72,7 @@ class FollowingRestControllerTest {
                 .profilePicture("jkhu.png")
                 .build());
         //when
-        given(followService.followerList(any())).willReturn(followerList);
+        given(followService.followerList(any(), any())).willReturn(followerList);
         //then
         mockMvc.perform(get("/api/followerList")
                         .contentType(MediaType.APPLICATION_JSON)
