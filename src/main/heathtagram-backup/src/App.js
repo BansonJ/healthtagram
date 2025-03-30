@@ -12,10 +12,7 @@ import TagSearchResult from "./post/TagSearchResult";
 import FollowersList from "./follow/FollowersList";
 import FollowingList from "./follow/FollowingList";
 import Reply from "./reply/Reply";
-
-
-
-
+import Weather from "./reply/Weather";
 
 function App() {
   return (
@@ -48,6 +45,8 @@ function App() {
         <Route path="/search" element={<Search />} />
 
         <Route path="/tagSearch" element={<TagSearch />} />
+
+        <Route path="/weather" element={<Weather />} />
       </Routes>
     </Router>
   );

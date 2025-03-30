@@ -16,7 +16,7 @@ const Reply = () => {
     const fetchPostAndComments = async () => {
       try {
         const storedNickname = localStorage.getItem('nickname');
-        const initialLastReplyId = Number.MAX_SAFE_INTEGER;
+        const initialLastReplyId = Number.MAX_SAFE_LONG;
 
         // 댓글 정보와 게시물 정보 가져오기
         const response = await axios.get(`http://localhost:8080/api/${postId}/reply`, {

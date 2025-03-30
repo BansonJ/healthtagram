@@ -103,6 +103,30 @@
         </encoder>
     </appender>
 
+    <appender name = "CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+<!--        <filter class="ch.qos.logback.classic.filter.LevelFilter">-->
+<!--            <level>INFO</level>-->
+<!--            <onMatch>ACCEPT</onMatch>-->
+<!--            <onMismatch>DENY</onMismatch>-->
+<!--        </filter>-->
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <mdc/>
+                <pattern>
+                    <pattern>
+                        {
+                        "timestamp" : "%d{yyyy-MM-dd HH:mm:ss}",
+                        "message" : "%5level, %method:line%line - %msg"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+            <jsonGeneratorDecorator class="net.logstash.logback.decorate.CompositeJsonGeneratorDecorator">
+                <decorator class="net.logstash.logback.decorate.PrettyPrintingJsonGeneratorDecorator"/>
+            </jsonGeneratorDecorator>
+        </encoder>
+    </appender>
+
 
 
 
@@ -112,6 +136,7 @@
             <appender-ref ref="WARN"/>
             <appender-ref ref="ERROR"/>
         </springProfile>
+        <appender-ref ref="CONSOLE"/>
     </root>
 
 </configuration>

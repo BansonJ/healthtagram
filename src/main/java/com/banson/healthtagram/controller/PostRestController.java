@@ -1,5 +1,6 @@
 package com.banson.healthtagram.controller;
 
+import com.banson.healthtagram.aop.annotation.Timer;
 import com.banson.healthtagram.dto.PostRequestDto;
 import com.banson.healthtagram.dto.PostResponseDto;
 import com.banson.healthtagram.dto.SearchPageResponseDto;
@@ -7,6 +8,7 @@ import com.banson.healthtagram.entity.Follow;
 import com.banson.healthtagram.entity.Member;
 import com.banson.healthtagram.entity.es.Tag;
 import com.banson.healthtagram.entity.mongodb.Post;
+import com.banson.healthtagram.error.GlobalExceptionHandler;
 import com.banson.healthtagram.jwt.JwtTokenProvider;
 import com.banson.healthtagram.service.MemberService;
 import com.banson.healthtagram.service.PostService;
@@ -18,9 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -43,6 +47,7 @@ public class PostRestController {
     }
 
     @PostMapping("/post")   //포스트 저장
+    @Timer
     public ResponseEntity savePost(@RequestPart(value = "multipartFile") List<MultipartFile> multipartFile, @RequestParam(name = "storedNickname") String storedNickname,
                                    @Valid @RequestPart(name = "postRequestDto") PostRequestDto postRequestDto) {
         PostResponseDto postResponseDto = postService.savePost(postRequestDto, multipartFile, findUser(storedNickname));
@@ -52,6 +57,7 @@ public class PostRestController {
     }
 
     @GetMapping("/home")    //기본 페이지
+    @Timer
     public ResponseEntity home(@RequestParam(name = "lastPostId", defaultValue = Long.MAX_VALUE+"") Long lastPostId, @RequestParam(name = "storedNickname") String storedNickname,
                                @PageableDefault(size = 3) Pageable pageable) {
         Member member = findUser(storedNickname);

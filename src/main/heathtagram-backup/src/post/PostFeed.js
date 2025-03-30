@@ -31,6 +31,8 @@ const PostFeed = () => {
         withCredentials: true,
       });
 
+      console.log(response.data);
+
       const fetchedPosts = response.data;
       if (fetchedPosts.length === 0) setHasMore(false);
       setPosts((prevPosts) => [...prevPosts, ...fetchedPosts]);
