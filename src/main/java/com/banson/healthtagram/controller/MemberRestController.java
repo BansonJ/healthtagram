@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -47,6 +48,8 @@ public class MemberRestController {
     private final PostService postService;
     private final FollowService followService;
     private final BCryptPasswordEncoder passwordEncoder;
+    @Value("${file.path}")
+    private String getFilePath;
 
     private Member findUser(String nickname) { //내 Member 정보
         return memberService.findByNickname(nickname);
@@ -144,7 +147,7 @@ public class MemberRestController {
     @ResponseBody
     public ResponseEntity<Resource> getImage(@PathVariable(value = "imageName") String imageName) {
         try {
-            Path filePath = Paths.get("C:/study/healthtagramImage").resolve(imageName).normalize();
+            Path filePath = Paths.get(getFilePath).resolve(imageName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
 
             if (resource.exists() || resource.isReadable()) {

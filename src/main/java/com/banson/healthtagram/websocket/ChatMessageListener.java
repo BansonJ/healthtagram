@@ -14,6 +14,7 @@ public class ChatMessageListener {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
+    //메세지를 applicationEvent를 사용해 퍼블리시
     public void onMessage(String message, String channel) {
         String roomId = channel.split("_")[2];
         applicationEventPublisher.publishEvent(new ChatMessageEvent(this, roomId, message));

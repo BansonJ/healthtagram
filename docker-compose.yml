@@ -11,7 +11,7 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - ./mysql/conf.d:/etc/mysql/conf.d # MySQL 설정 파일 위치
+      - //c/study/heathtagram/mysql/conf.d:/etc/mysql/conf.d # MySQL 설정 파일 위치
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_general_ci
@@ -28,12 +28,13 @@ services:
     volumes:
       - //c/study/healthtagramImage:/tmp/healthtagramImage
     environment:
+      TZ: Asia/Seoul
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/healthtagram?useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1234
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATA_MONGODB_URI: mongodb://root:root@host.docker.internal:27017/healthtagram?authSource=admin
+      SPRING_DATA_MONGODB_URI: mongodb://host.docker.internal:27017/healthtagram
     depends_on:
       - db
       - es
@@ -49,7 +50,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./data/mongo:/data/db
+      - //c/study/heathtagram/data/mongo:/data/db
     networks:
       - healthtagramnetwork
 
@@ -59,7 +60,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml  # ./monitoring/prometheus.yml 은 prometheus.yml 파일의 경로 지정
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - healthtagramnetwork
 
@@ -70,7 +71,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./grafana-data:/var/lib/grafana
+      - //c/study/heathtagram/grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
     networks:
@@ -82,13 +83,11 @@ services:
         max-file: "10"
 
   es:
-    build:
-      context: ./elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
     container_name: healthElastic
     environment:
       - node.name=single-node
-      - cluster.name=healthEsCluster
+      - cluster.name=healthtagramCluster
       - discovery.type=single-node
       - xpack.security.enabled=false
       - xpack.security.http.ssl.enabled=false
@@ -97,7 +96,7 @@ services:
       - 9200:9200
       - 9300:9300
     volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
+      - //c/study/heathtagram/elasticsearch-data:/usr/share/elasticsearch/data1
     networks:
       - healthtagramnetwork
 
@@ -114,10 +113,6 @@ services:
       - es
     networks:
       - healthtagramnetwork
-
-volumes:
-  elasticsearch-data:  # ✅ 볼륨 정의 추가
-    driver: local
 
 networks:
   healthtagramnetwork:

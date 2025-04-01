@@ -13,16 +13,21 @@ import org.springframework.util.StopWatch;
 @Aspect
 @Component
 public class MethodTimer {
-    @Around("@annotation(com.banson.healthtagram.aop.annotation.Timer)")
+
+    @Pointcut("@annotation(com.banson.healthtagram.aop.annotation.Timer)")  //aop가 적용될 곳
+    private void timer(){};
+
+    @Around("timer()")  //aop가 적용될 범위
     public Object ExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         StopWatch stopWatch = new StopWatch();
 
         stopWatch.start();
-        Object proceed = joinPoint.proceed();
+        Object proceed = joinPoint.proceed();   //중요 로직을 실행시키는 코드
         stopWatch.stop();
 
         long totalTime = stopWatch.getTotalTimeMillis();
 
+        //메소드의 이름을 가져옴
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         String method = signature.getMethod().getName();
 
