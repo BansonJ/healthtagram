@@ -14,13 +14,13 @@ import com.banson.healthtagram.service.ReplyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,13 +32,15 @@ public class ReplyRestController {
     private final ReplyService replyService;
     private final MemberService memberService;
     private final PostService postService;
+    @Value("${file.httpPath}")
+    private String getFilePath;
 
     private Member findUser(String nickname) { //내 Member 정보
         return memberService.findByNickname(nickname);
     }
 
     @GetMapping("{postId}/reply")   //댓글 보기
-    public ResponseEntity reply(@PathVariable(name = "postId") Long postId, @PageableDefault(size = 5) Pageable pageable, @RequestParam(name = "lastReplyId") Long lastReplyId,
+    public ResponseEntity reply(@PathVariable(name = "postId") Long postId, @PageableDefault(size = 5) Pageable pageable, @RequestParam(name = "lastReplyId", defaultValue = Long.MAX_VALUE+"") Long lastReplyId,
                                 @RequestParam(name = "storedNickname") String storedNickname) {
         Member member = findUser(storedNickname);
         List<ReplyStateDto> replyStateDtoList = replyService.findReply(member, postId, lastReplyId, pageable);
@@ -47,19 +49,19 @@ public class ReplyRestController {
         //포스트 사진들
         List<String> updatedFilePaths = new ArrayList<>();
         for (String filePath : post.getFilePath()) {
-            String fileUrl = "http://localhost:8080/api/study/healthtagramImage/" + new File(filePath).getName();
+            String fileUrl = getFilePath + new File(filePath).getName();
             updatedFilePaths.add(fileUrl);
         }
         post.setFilePath(updatedFilePaths);
 
         //포스트 게시자 프로필 사진
-        String profileFileUrl = "http://localhost:8080/api/study/healthtagramImage/" + new File(member.getProfilePicture()).getName();
+        String profileFileUrl = getFilePath + new File(member.getProfilePicture()).getName();
 
         //댓글과 댓글 쓴 사람 정보
         List<ReplyMemberResponseDto> replyMemberResponseDtos = new ArrayList<>();
         for (ReplyStateDto replyStateDto : replyStateDtoList) {
             Member replyMember = findUser(replyStateDto.getReply().getNickname());
-            String replyMemberProfile = "http://localhost:8080/api/study/healthtagramImage/" + new File(replyMember.getProfilePicture()).getName();
+            String replyMemberProfile = getFilePath + new File(replyMember.getProfilePicture()).getName();
 
             ReplyMemberResponseDto replyMemberResponseDto = ReplyMemberResponseDto.builder()
                     .reply(replyStateDto.getReply())
@@ -85,7 +87,7 @@ public class ReplyRestController {
                                   @RequestParam(name = "storedNickname") String storedNickname) {
         Member member = findUser(storedNickname);
 
-        String profileFileUrl = "http://localhost:8080/api/study/healthtagramImage/" + new File(member.getProfilePicture()).getName();
+        String profileFileUrl = getFilePath + new File(member.getProfilePicture()).getName();
 
         Reply reply1 = null;
         if (findUser(storedNickname) != null) {

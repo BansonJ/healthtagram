@@ -32,13 +32,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PostService {
 
-    @Value("${file.path}")
-    private String filePath;
-
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
     private final PostHeartRepository postHeartRepository;
     private final TagRepository tagRepository;
+
+    @Value("${file.httpPath}")
+    private String getFilePath;
+
+    @Value("${file.path}")
+    private String filePath;
 
     @Async  //kafka로 처리해도 되지만 사실 단일 서버라 재시도 외에 큰 차이는 없다...
     public void saveFile(List<String> files, List<MultipartFile> multipartFile) {
@@ -121,7 +124,7 @@ public class PostService {
             List<String> updatedFilePaths = new ArrayList<>();
             for (String filePath : post.getFilePath()) {
                 // 로컬 경로를 HTTP URL로 변환 (예: C:/uploads/image.jpg -> http://localhost:8080/api/uploads/image.jpg)
-                String fileUrl = "http://localhost:8080/api/study/healthtagramImage/" + new File(filePath).getName();
+                String fileUrl = getFilePath + new File(filePath).getName();
                 updatedFilePaths.add(fileUrl);
             }
 
@@ -230,7 +233,7 @@ public class PostService {
             List<String> updatedFilePaths = new ArrayList<>();
             for (String filePath : post.getFilePath()) {
                 // 로컬 경로를 HTTP URL로 변환 (예: C:/uploads/image.jpg -> http://localhost:8080/api/uploads/image.jpg)
-                String fileUrl = "http://localhost:8080/api/study/healthtagramImage/" + new File(filePath).getName();
+                String fileUrl = getFilePath + new File(filePath).getName();
                 updatedFilePaths.add(fileUrl);
             }
 
